@@ -1,0 +1,54 @@
+{% extends "panel.html" %}
+{% block titulo %}Cargos{% endblock %}
+
+{% block encabezado %}
+  <h1>Cargos</h1>
+  <p>Puestos de trabajo y sueldos base referenciales</p>
+{% endblock %}
+
+{% block acciones %}
+  <a href="{{ url_for('cargos.nuevo') }}" class="boton boton-primario">
+    <i class="bi bi-plus-lg"></i><span>Nuevo cargo</span>
+  </a>
+{% endblock %}
+
+{% block contenido %}
+<section class="tarjeta">
+  {% if cargos %}
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr><th>Cargo</th><th>Descripción</th><th class="numero">Sueldo base</th><th class="numero">Trabajadores</th><th class="acciones">Acciones</th></tr>
+        </thead>
+        <tbody>
+          {% for c in cargos %}
+            <tr>
+              <td><strong>{{ c.nombre }}</strong></td>
+              <td class="texto-suave">{{ c.descripcion or '—' }}</td>
+              <td class="numero">{{ c.sueldo_base | clp }}</td>
+              <td class="numero">{{ c.total_trabajadores }}</td>
+              <td class="acciones">
+                <a href="{{ url_for('cargos.editar', id=c.id) }}" class="boton-icono" title="Editar" aria-label="Editar">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <form method="post" action="{{ url_for('cargos.eliminar', id=c.id) }}"
+                      data-confirmar="¿Eliminar el cargo «{{ c.nombre }}»?">
+                  <button type="submit" class="boton-icono peligro" title="Eliminar" aria-label="Eliminar">
+                    <i class="bi bi-trash3"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="vacio">
+      <i class="bi bi-briefcase"></i>
+      <p>Aún no hay cargos registrados.</p>
+      <a href="{{ url_for('cargos.nuevo') }}" class="boton boton-primario">Crear el primero</a>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

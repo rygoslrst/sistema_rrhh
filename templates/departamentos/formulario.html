@@ -1,0 +1,38 @@
+{% extends "panel.html" %}
+{% from "macros.html" import error_campo, clase_error %}
+{% set es_edicion = departamento.id is not none %}
+{% block titulo %}{{ 'Editar' if es_edicion else 'Nuevo' }} departamento{% endblock %}
+
+{% block encabezado %}
+  <a href="{{ url_for('departamentos.lista') }}" class="volver"><i class="bi bi-arrow-left"></i> Departamentos</a>
+  <h1>{{ 'Editar departamento' if es_edicion else 'Nuevo departamento' }}</h1>
+{% endblock %}
+
+{% block contenido %}
+<form method="post" class="formulario formulario-angosto" data-validar novalidate>
+  <section class="tarjeta">
+    <div class="campo {{ clase_error(departamento, 'nombre') }}">
+      <label for="nombre">Nombre <span class="obligatorio">*</span></label>
+      <input type="text" id="nombre" name="nombre" required minlength="3" maxlength="80"
+             value="{{ departamento.nombre }}" placeholder="Ej: Operaciones">
+      {{ error_campo(departamento, 'nombre') }}
+    </div>
+    <div class="campo {{ clase_error(departamento, 'descripcion') }}">
+      <label for="descripcion">Descripción</label>
+      <textarea id="descripcion" name="descripcion" rows="3" maxlength="255"
+                placeholder="¿Qué hace esta área?">{{ departamento.descripcion }}</textarea>
+      {{ error_campo(departamento, 'descripcion') }}
+    </div>
+  </section>
+
+  <div class="barra-formulario">
+    <span class="texto-suave"><span class="obligatorio">*</span> Campos obligatorios</span>
+    <div class="grupo-botones">
+      <a href="{{ url_for('departamentos.lista') }}" class="boton boton-fantasma">Cancelar</a>
+      <button type="submit" class="boton boton-primario">
+        <i class="bi bi-check2"></i> {{ 'Guardar cambios' if es_edicion else 'Crear departamento' }}
+      </button>
+    </div>
+  </div>
+</form>
+{% endblock %}

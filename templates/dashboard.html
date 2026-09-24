@@ -1,0 +1,106 @@
+{% extends "panel.html" %}
+{% block titulo %}Dashboard{% endblock %}
+
+{% block encabezado %}
+  <h1>Dashboard</h1>
+  <p>Resumen del personal de la empresa</p>
+{% endblock %}
+
+{% block acciones %}
+  <a href="{{ url_for('trabajadores.nuevo') }}" class="boton boton-primario">
+    <i class="bi bi-person-plus"></i><span>Nuevo trabajador</span>
+  </a>
+{% endblock %}
+
+{% block contenido %}
+<section class="indicadores">
+  <article class="indicador">
+    <span class="indicador-icono tono-primario"><i class="bi bi-people"></i></span>
+    <div>
+      <span class="indicador-valor">{{ resumen.total }}</span>
+      <span class="indicador-etiqueta">Trabajadores vigentes</span>
+    </div>
+  </article>
+  <article class="indicador">
+    <span class="indicador-icono tono-exito"><i class="bi bi-person-check"></i></span>
+    <div>
+      <span class="indicador-valor">{{ resumen.activos }}</span>
+      <span class="indicador-etiqueta">Activos hoy</span>
+    </div>
+  </article>
+  <article class="indicador">
+    <span class="indicador-icono tono-aviso"><i class="bi bi-calendar2-week"></i></span>
+    <div>
+      <span class="indicador-valor">{{ resumen.ausentes }}</span>
+      <span class="indicador-etiqueta">En vacaciones o licencia</span>
+    </div>
+  </article>
+  <article class="indicador">
+    <span class="indicador-icono tono-info"><i class="bi bi-cash-stack"></i></span>
+    <div>
+      <span class="indicador-valor">{{ resumen.nomina_mensual | clp }}</span>
+      <span class="indicador-etiqueta">Nómina mensual · promedio {{ resumen.sueldo_promedio | clp }}</span>
+    </div>
+  </article>
+</section>
+
+<section class="rejilla-graficos">
+  <article class="tarjeta">
+    <header class="tarjeta-encabezado">
+      <h2>Trabajadores por departamento</h2>
+      <span class="etiqueta-suave">{{ resumen.departamentos }} departamentos</span>
+    </header>
+    <div class="grafico"><canvas id="grafico-departamentos"></canvas></div>
+  </article>
+  <article class="tarjeta">
+    <header class="tarjeta-encabezado">
+      <h2>Estado del personal</h2>
+      <span class="etiqueta-suave">{{ resumen.desvinculados }} desvinculados</span>
+    </header>
+    <div class="grafico grafico-dona"><canvas id="grafico-estados"></canvas></div>
+  </article>
+</section>
+
+<section class="tarjeta">
+  <header class="tarjeta-encabezado">
+    <h2>Últimos ingresos</h2>
+    <a href="{{ url_for('trabajadores.lista') }}" class="enlace">Ver todos <i class="bi bi-arrow-right"></i></a>
+  </header>
+  {% if recientes %}
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr><th>Trabajador</th><th>Departamento</th><th>Cargo</th><th>Ingreso</th><th>Estado</th></tr>
+        </thead>
+        <tbody>
+          {% for t in recientes %}
+            <tr>
+              <td>
+                <div class="persona">
+                  <span class="avatar">{{ t.iniciales }}</span>
+                  <div><strong>{{ t.nombre_completo }}</strong><small>{{ t.email }}</small></div>
+                </div>
+              </td>
+              <td>{{ t.departamento_nombre }}</td>
+              <td>{{ t.cargo_nombre }}</td>
+              <td class="sin-salto">{{ t.fecha_ingreso | fecha }}</td>
+              <td><span class="estado estado-{{ t.estado }}">{{ t.estado_etiqueta }}</span></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="vacio">
+      <i class="bi bi-inbox"></i>
+      <p>Aún no hay trabajadores registrados.</p>
+    </div>
+  {% endif %}
+</section>
+
+<script id="datos-graficos" type="application/json">{{ graficos | tojson }}</script>
+{% endblock %}
+
+{% block scripts %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends "panel.html" %}
+{% from "macros.html" import error_campo, clase_error %}
+{% set es_edicion = trabajador.id is not none %}
+{% block titulo %}{{ 'Editar' if es_edicion else 'Nuevo' }} trabajador{% endblock %}
+
+{% block encabezado %}
+  <a href="{{ url_for('trabajadores.lista') }}" class="volver"><i class="bi bi-arrow-left"></i> Trabajadores</a>
+  <h1>{{ 'Editar trabajador' if es_edicion else 'Nuevo trabajador' }}</h1>
+{% endblock %}
+
+{% block contenido %}
+<form method="post" class="formulario" data-validar novalidate>
+  <section class="tarjeta">
+    <header class="tarjeta-encabezado">
+      <h2><i class="bi bi-person-vcard"></i> Datos personales</h2>
+    </header>
+    <div class="rejilla-campos">
+      <div class="campo {{ clase_error(trabajador, 'rut') }}">
+        <label for="rut">RUT <span class="obligatorio">*</span></label>
+        <input type="text" id="rut" name="rut" required maxlength="12" data-rut
+               value="{{ trabajador.rut if 'rut' in trabajador.errores else trabajador.rut | rut }}"
+               placeholder="12.345.678-5">
+        {{ error_campo(trabajador, 'rut') }}
+      </div>
+      <div class="campo {{ clase_error(trabajador, 'email') }}">
+        <label for="email">Correo <span class="obligatorio">*</span></label>
+        <input type="email" id="email" name="email" required maxlength="120"
+               value="{{ trabajador.email }}" placeholder="nombre.apellido@empresa.cl">
+        {{ error_campo(trabajador, 'email') }}
+      </div>
+      <div class="campo {{ clase_error(trabajador, 'nombres') }}">
+        <label for="nombres">Nombres <span class="obligatorio">*</span></label>
+        <input type="text" id="nombres" name="nombres" required minlength="2" maxlength="60"
+               value="{{ trabajador.nombres }}" placeholder="Camila Andrea">
+        {{ error_campo(trabajador, 'nombres') }}
+      </div>
+      <div class="campo {{ clase_error(trabajador, 'apellidos') }}">
+        <label for="apellidos">Apellidos <span class="obligatorio">*</span></label>
+        <input type="text" id="apellidos" name="apellidos" required minlength="2" maxlength="60"
+               value="{{ trabajador.apellidos }}" placeholder="Rojas Fuentes">
+        {{ error_campo(trabajador, 'apellidos') }}
+      </div>
+      <div class="campo {{ clase_error(trabajador, 'telefono') }}">
+        <label for="telefono">Teléfono</label>
+        <input type="tel" id="telefono" name="telefono" maxlength="15" pattern="\+?[0-9 ]{8,15}"
+               value="{{ trabajador.telefono }}" placeholder="+56 9 1234 5678">
+        {{ error_campo(trabajador, 'telefono') }}
+      </div>
+    </div>
+  </section>
+
+  <section class="tarjeta">
+    <header class="tarjeta-encabezado">
+      <h2><i class="bi bi-building"></i> Datos laborales</h2>
+    </header>
+    <div class="rejilla-campos">
+      <div class="campo {{ clase_error(trabajador, 'departamento_id') }}">
+        <label for="departamento_id">Departamento <span class="obligatorio">*</span></label>
+        <select id="departamento_id" name="departamento_id" required>
+          <option value="">Selecciona…</option>
+          {% for d in departamentos %}
+            <option value="{{ d.id }}" {{ 'selected' if trabajador.departamento_id == d.id }}>{{ d.nombre }}</option>
+          {% endfor %}
+        </select>
+        {{ error_campo(trabajador, 'departamento_id') }}
+      </div>
+      <div class="campo {{ clase_error(trabajador, 'cargo_id') }}">
+        <label for="cargo_id">Cargo <span class="obligatorio">*</span></label>
+        <select id="cargo_id" name="cargo_id" required data-sugerir-sueldo="sueldo">
+          <option value="">Selecciona…</option>
+          {% for c in cargos %}
+            <option value="{{ c.id }}" data-sueldo="{{ c.sueldo_base }}"
+                    {{ 'selected' if trabajador.cargo_id == c.id }}>{{ c.nombre }}</option>
+          {% endfor %}
+        </select>
+        {{ error_campo(trabajador, 'cargo_id') }}
+      </div>
+      <div class="campo {{ clase_error(trabajador, 'fecha_ingreso') }}">
+        <label for="fecha_ingreso">Fecha de ingreso <span class="obligatorio">*</span></label>
+        <input type="date" id="fecha_ingreso" name="fecha_ingreso" required max="{{ hoy.isoformat() }}"
+               value="{{ trabajador.fecha_ingreso.isoformat() if trabajador.fecha_ingreso }}">
+        {{ error_campo(trabajador, 'fecha_ingreso') }}
+      </div>
+      <div class="campo {{ clase_error(trabajador, 'sueldo') }}">
+        <label for="sueldo">Sueldo bruto mensual (CLP) <span class="obligatorio">*</span></label>
+        <input type="number" id="sueldo" name="sueldo" required min="1" max="50000000" step="1"
+               value="{{ trabajador.sueldo if trabajador.sueldo is not none }}" placeholder="850000">
+        <small class="ayuda" id="ayuda-sueldo">Al elegir un cargo se sugiere su sueldo base.</small>
+        {{ error_campo(trabajador, 'sueldo') }}
+      </div>
+      <div class="campo {{ clase_error(trabajador, 'estado') }}">
+        <label for="estado">Estado <span class="obligatorio">*</span></label>
+        <select id="estado" name="estado" required>
+          {% for valor, etiqueta in estados.items() %}
+            <option value="{{ valor }}" {{ 'selected' if trabajador.estado == valor }}>{{ etiqueta }}</option>
+          {% endfor %}
+        </select>
+        {{ error_campo(trabajador, 'estado') }}
+      </div>
+    </div>
+  </section>
+
+  <div class="barra-formulario">
+    <span class="texto-suave"><span class="obligatorio">*</span> Campos obligatorios</span>
+    <div class="grupo-botones">
+      <a href="{{ url_for('trabajadores.lista') }}" class="boton boton-fantasma">Cancelar</a>
+      <button type="submit" class="boton boton-primario">
+        <i class="bi bi-check2"></i> {{ 'Guardar cambios' if es_edicion else 'Registrar trabajador' }}
+      </button>
+    </div>
+  </div>
+</form>
+{% endblock %}

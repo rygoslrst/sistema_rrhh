@@ -1,0 +1,12 @@
+{# Macros reutilizables para los formularios. Uso:
+   {% from "macros.html" import error_campo, clase_error %} #}
+
+{% macro clase_error(entidad, campo) -%}
+  {{ 'invalido' if campo in entidad.errores }}
+{%- endmacro %}
+
+{% macro error_campo(entidad, campo) -%}
+  {% if campo in entidad.errores %}
+    <span class="error-campo"><i class="bi bi-exclamation-circle"></i> {{ entidad.errores[campo] }}</span>
+  {% endif %}
+{%- endmacro %}

@@ -1,0 +1,52 @@
+{% extends "panel.html" %}
+{% block titulo %}Departamentos{% endblock %}
+
+{% block encabezado %}
+  <h1>Departamentos</h1>
+  <p>Áreas en que se organiza la empresa</p>
+{% endblock %}
+
+{% block acciones %}
+  <a href="{{ url_for('departamentos.nuevo') }}" class="boton boton-primario">
+    <i class="bi bi-plus-lg"></i><span>Nuevo departamento</span>
+  </a>
+{% endblock %}
+
+{% block contenido %}
+{% if departamentos %}
+  <section class="rejilla-tarjetas">
+    {% for d in departamentos %}
+      <article class="tarjeta tarjeta-item">
+        <header>
+          <span class="indicador-icono tono-primario"><i class="bi bi-diagram-3"></i></span>
+          <div class="tarjeta-item-acciones">
+            <a href="{{ url_for('departamentos.editar', id=d.id) }}" class="boton-icono" title="Editar" aria-label="Editar">
+              <i class="bi bi-pencil"></i>
+            </a>
+            <form method="post" action="{{ url_for('departamentos.eliminar', id=d.id) }}"
+                  data-confirmar="¿Eliminar el departamento «{{ d.nombre }}»?">
+              <button type="submit" class="boton-icono peligro" title="Eliminar" aria-label="Eliminar">
+                <i class="bi bi-trash3"></i>
+              </button>
+            </form>
+          </div>
+        </header>
+        <h3>{{ d.nombre }}</h3>
+        <p class="texto-suave">{{ d.descripcion or 'Sin descripción.' }}</p>
+        <footer>
+          <a href="{{ url_for('trabajadores.lista', departamento=d.id) }}" class="enlace">
+            <i class="bi bi-people"></i> {{ d.total_trabajadores }}
+            {{ 'trabajador' if d.total_trabajadores == 1 else 'trabajadores' }}
+          </a>
+        </footer>
+      </article>
+    {% endfor %}
+  </section>
+{% else %}
+  <section class="tarjeta vacio">
+    <i class="bi bi-diagram-3"></i>
+    <p>Aún no hay departamentos registrados.</p>
+    <a href="{{ url_for('departamentos.nuevo') }}" class="boton boton-primario">Crear el primero</a>
+  </section>
+{% endif %}
+{% endblock %}

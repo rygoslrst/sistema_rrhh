@@ -1,0 +1,99 @@
+{% extends "panel.html" %}
+{% block titulo %}Trabajadores{% endblock %}
+
+{% block encabezado %}
+  <h1>Trabajadores</h1>
+  <p>Registro del personal de la empresa</p>
+{% endblock %}
+
+{% block acciones %}
+  <a href="{{ url_for('trabajadores.nuevo') }}" class="boton boton-primario">
+    <i class="bi bi-person-plus"></i><span>Nuevo trabajador</span>
+  </a>
+{% endblock %}
+
+{% block contenido %}
+<form class="tarjeta filtros" method="get" data-filtros>
+  <div class="entrada-con-icono filtro-busqueda">
+    <i class="bi bi-search"></i>
+    <input type="search" name="q" value="{{ filtros.q }}" placeholder="Buscar por nombre, RUT o correo…" aria-label="Buscar">
+  </div>
+  <select name="departamento" aria-label="Filtrar por departamento" data-autoenviar>
+    <option value="">Todos los departamentos</option>
+    {% for d in departamentos %}
+      <option value="{{ d.id }}" {{ 'selected' if filtros.departamento == d.id }}>{{ d.nombre }}</option>
+    {% endfor %}
+  </select>
+  <select name="estado" aria-label="Filtrar por estado" data-autoenviar>
+    <option value="">Todos los estados</option>
+    {% for valor, etiqueta in estados.items() %}
+      <option value="{{ valor }}" {{ 'selected' if filtros.estado == valor }}>{{ etiqueta }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="boton boton-secundario"><i class="bi bi-funnel"></i><span>Filtrar</span></button>
+  {% if hay_filtros %}
+    <a href="{{ url_for('trabajadores.lista') }}" class="boton boton-fantasma"><i class="bi bi-x-lg"></i><span>Limpiar</span></a>
+  {% endif %}
+</form>
+
+<section class="tarjeta">
+  <header class="tarjeta-encabezado">
+    <h2>{{ trabajadores | length }} {{ 'resultado' if trabajadores | length == 1 else 'resultados' }}</h2>
+  </header>
+
+  {% if trabajadores %}
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Trabajador</th><th>RUT</th><th>Área / Cargo</th>
+            <th>Ingreso</th><th class="numero">Sueldo</th><th>Estado</th><th class="acciones">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in trabajadores %}
+            <tr>
+              <td>
+                <div class="persona">
+                  <span class="avatar">{{ t.iniciales }}</span>
+                  <div><strong>{{ t.nombre_completo }}</strong><small>{{ t.email }}</small></div>
+                </div>
+              </td>
+              <td class="sin-salto">{{ t.rut | rut }}</td>
+              <td>{{ t.departamento_nombre }}<small class="bloque texto-suave">{{ t.cargo_nombre }}</small></td>
+              <td class="sin-salto">
+                {{ t.fecha_ingreso | fecha }}
+                <small class="bloque texto-suave">{{ t.antiguedad_anios }} {{ 'año' if t.antiguedad_anios == 1 else 'años' }}</small>
+              </td>
+              <td class="numero">{{ t.sueldo | clp }}</td>
+              <td><span class="estado estado-{{ t.estado }}">{{ t.estado_etiqueta }}</span></td>
+              <td class="acciones">
+                <a href="{{ url_for('trabajadores.editar', id=t.id) }}" class="boton-icono" title="Editar" aria-label="Editar">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <form method="post" action="{{ url_for('trabajadores.eliminar', id=t.id) }}"
+                      data-confirmar="¿Eliminar a {{ t.nombre_completo }}? Esta acción no se puede deshacer.">
+                  <button type="submit" class="boton-icono peligro" title="Eliminar" aria-label="Eliminar">
+                    <i class="bi bi-trash3"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="vacio">
+      <i class="bi bi-person-x"></i>
+      {% if hay_filtros %}
+        <p>No hay trabajadores que coincidan con la búsqueda.</p>
+        <a href="{{ url_for('trabajadores.lista') }}" class="boton boton-secundario">Quitar filtros</a>
+      {% else %}
+        <p>Aún no hay trabajadores registrados.</p>
+        <a href="{{ url_for('trabajadores.nuevo') }}" class="boton boton-primario">Registrar el primero</a>
+      {% endif %}
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

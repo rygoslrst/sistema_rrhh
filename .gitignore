@@ -1,0 +1,22 @@
+# Variables de entorno (claves privadas)
+.env
+.env.*
+!.env.example
+
+# Entorno virtual
+venv/
+.venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.log
+instance/
+.pytest_cache/
+
+# Editores y sistema operativo
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

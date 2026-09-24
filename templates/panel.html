@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{#
+  Plantilla para las páginas internas (con sesión iniciada): menú lateral +
+  barra superior. Cada página define los bloques "encabezado" y "contenido".
+#}
+{% block clase_body %}panel{% endblock %}
+
+{% block cuerpo %}
+{% set menu = [
+  ("dashboard", "dashboard.inicio", "bi-grid-1x2", "Dashboard"),
+  ("trabajadores", "trabajadores.lista", "bi-people", "Trabajadores"),
+  ("departamentos", "departamentos.lista", "bi-diagram-3", "Departamentos"),
+  ("cargos", "cargos.lista", "bi-briefcase", "Cargos"),
+] %}
+<aside class="sidebar" id="sidebar">
+  <a class="marca" href="{{ url_for('dashboard.inicio') }}">
+    <span class="marca-logo"><i class="bi bi-person-badge"></i></span>
+    <span class="marca-texto">Talento<strong>RH</strong></span>
+  </a>
+
+  <nav class="menu">
+    <span class="menu-titulo">Gestión</span>
+    {% for blueprint, endpoint, icono, etiqueta in menu %}
+      <a href="{{ url_for(endpoint) }}"
+         class="menu-item {{ 'activo' if request.blueprint == blueprint }}">
+        <i class="bi {{ icono }}"></i><span>{{ etiqueta }}</span>
+      </a>
+    {% endfor %}
+  </nav>
+
+  <div class="sidebar-usuario">
+    <span class="avatar avatar-claro">{{ usuario_actual.email[:1] | upper }}</span>
+    <div class="sidebar-usuario-datos">
+      <span class="sidebar-usuario-rol">Administrador RR.HH.</span>
+      <span class="sidebar-usuario-email" title="{{ usuario_actual.email }}">{{ usuario_actual.email }}</span>
+    </div>
+    <form action="{{ url_for('auth.logout') }}" method="post">
+      <button class="boton-icono" type="submit" title="Cerrar sesión" aria-label="Cerrar sesión">
+        <i class="bi bi-box-arrow-right"></i>
+      </button>
+    </form>
+  </div>
+</aside>
+<div class="sidebar-fondo" data-cerrar-menu></div>
+
+<div class="principal">
+  <header class="topbar">
+    <button class="boton-icono boton-menu" type="button" data-abrir-menu aria-label="Abrir menú">
+      <i class="bi bi-list"></i>
+    </button>
+    <div class="topbar-titulo">
+      {% block encabezado %}{% endblock %}
+    </div>
+    <div class="topbar-acciones">
+      {% block acciones %}{% endblock %}
+    </div>
+  </header>
+
+  <main class="contenido">
+    {% block contenido %}{% endblock %}
+  </main>
+
+  <footer class="pie">
+    TalentoRH · Proyecto académico — todos los datos son ficticios.
+  </footer>
+</div>
+{% endblock %}

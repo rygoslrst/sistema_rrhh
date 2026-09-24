@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block titulo %}Iniciar sesión{% endblock %}
+{% block clase_body %}pagina-login{% endblock %}
+
+{% block cuerpo %}
+<div class="login">
+  <section class="login-presentacion">
+    <div class="marca marca-grande">
+      <span class="marca-logo"><i class="bi bi-person-badge"></i></span>
+      <span class="marca-texto">Talento<strong>RH</strong></span>
+    </div>
+
+    <div class="login-mensaje">
+      <h1>Las personas de tu empresa, en un solo lugar.</h1>
+      <p>Registra trabajadores, organiza departamentos y cargos, y revisa los indicadores de tu equipo en tiempo real.</p>
+      <ul class="login-beneficios">
+        <li><i class="bi bi-shield-check"></i> Acceso protegido con Supabase Auth</li>
+        <li><i class="bi bi-bar-chart-line"></i> Dashboard con indicadores del personal</li>
+        <li><i class="bi bi-search"></i> Búsqueda y filtros por área y estado</li>
+      </ul>
+    </div>
+
+    <p class="login-nota">Proyecto académico · Datos 100 % ficticios</p>
+  </section>
+
+  <section class="login-formulario">
+    <form method="post" class="tarjeta tarjeta-login" data-validar novalidate>
+      <h2>Iniciar sesión</h2>
+      <p class="texto-suave">Ingresa con tu cuenta del área de Recursos Humanos.</p>
+
+      <div class="campo">
+        <label for="email">Correo electrónico</label>
+        <div class="entrada-con-icono">
+          <i class="bi bi-envelope"></i>
+          <input type="email" id="email" name="email" value="{{ email }}"
+                 placeholder="nombre@empresa.cl" autocomplete="username" required autofocus>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label for="password">Contraseña</label>
+        <div class="entrada-con-icono">
+          <i class="bi bi-lock"></i>
+          <input type="password" id="password" name="password" placeholder="••••••••"
+                 autocomplete="current-password" required minlength="6">
+          <button type="button" class="ver-password" data-ver-password="password" aria-label="Mostrar contraseña">
+            <i class="bi bi-eye"></i>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="boton boton-primario boton-bloque">
+        Ingresar <i class="bi bi-arrow-right"></i>
+      </button>
+    </form>
+  </section>
+</div>
+{% endblock %}
