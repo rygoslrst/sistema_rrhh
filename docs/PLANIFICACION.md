@@ -1,178 +1,227 @@
-# Planificación del proyecto — TalentoRH
+# Planificación — TalentoRH: control de trabajadores
 
 > Evaluación II y III · Programación Orientada a Objeto · 4º Medio H
-> Contexto elegido: **B. Gestión de Recursos Humanos**
-> Entrega: **martes 29 de septiembre de 2026** (impostergable)
+> Contexto: **B. Gestión de Recursos Humanos** · Entrega: **martes 29 de septiembre de 2026**
+> Estado del plan: **borrador para aprobar**. El código se escribe desde cero siguiendo este documento.
 
 ---
 
-## 1. Contexto y problema
+## 1. Idea en una frase
 
-**Organización (ficticia):** *Comercial Los Andes SpA*, empresa mediana de distribución con unas 120 personas repartidas en 5 áreas: Administración y Finanzas, Operaciones, Ventas, Tecnología y Recursos Humanos.
+Una aplicación web sencilla para que el área de RR.HH. **registre y controle a los trabajadores** de la empresa: quiénes son, en qué área y cargo están, desde cuándo, cuánto ganan y en qué estado se encuentran.
 
-**Situación actual:** el área de RR.HH. guarda la información del personal en planillas Excel que cada jefatura copia y modifica por su cuenta. Esto provoca que:
+## 2. Problema
 
-- existan **datos duplicados o desactualizados** (el mismo trabajador aparece con distinto cargo en dos archivos);
-- no se sepa rápidamente **cuántas personas están activas, de vacaciones o con licencia**, lo que complica organizar turnos y reemplazos;
-- calcular la **nómina mensual** o el personal por área requiere sumar a mano;
-- cualquiera con acceso a la carpeta compartida puede ver o borrar datos (**sin control de acceso**);
-- se ingresan **RUT o correos mal escritos** porque nada los valida.
+**Organización (ficticia):** *Comercial Los Andes SpA*, empresa de distribución con unas 60 personas.
 
-**Problema a resolver:** RR.HH. necesita un sistema web centralizado y protegido con contraseña para registrar al personal, mantener sus datos consistentes y ver indicadores del equipo sin cálculos manuales.
+**Situación actual:** los datos del personal están en planillas Excel que se copian y modifican por separado. Esto provoca que:
 
-**Relevancia:** la información del personal es la base de remuneraciones, planificación de turnos y cumplimiento laboral. Tener errores ahí implica pagos incorrectos, áreas sin cobertura y pérdida de tiempo administrativo.
+- haya trabajadores duplicados o con datos desactualizados;
+- no se sepa rápido cuántas personas están activas, de vacaciones o con licencia;
+- cualquiera con acceso a la carpeta pueda ver o borrar la información;
+- se ingresen RUT o correos mal escritos porque nada los valida.
 
-## 2. Usuarios del sistema
+**Qué resolvemos:** un solo lugar, protegido con contraseña, donde los datos del personal se ingresan validados y se consultan en segundos.
 
-| Usuario | Qué necesita hacer |
+## 3. Usuarios
+
+| Usuario | Qué hace en el sistema |
 |---|---|
-| **Encargado/a de RR.HH.** (usuario principal) | Registrar, modificar y dar de baja trabajadores; mantener departamentos y cargos; buscar personas rápidamente. |
-| **Gerencia / jefaturas** | Revisar el dashboard: dotación por área, ausencias y costo de la nómina. |
+| **Encargado/a de RR.HH.** | Registra, edita, busca y elimina trabajadores. |
+| **Jefatura** | Revisa el dashboard para ver cuántas personas hay disponibles. |
 
-En esta versión todos los usuarios autenticados tienen los mismos permisos. Separar roles (administrador y solo consulta) queda como mejora, ver el [backlog](#9-backlog-de-mejoras-para-repartir).
+Ambos usan la misma cuenta y tienen los mismos permisos. Las cuentas se crean a mano en Supabase y **no** hay registro de usuarios desde la app.
 
-## 3. Requerimientos funcionales
+## 4. Alcance
 
-| ID | Requerimiento | Dónde está |
+**Sí incluye:**
+- Login y logout.
+- Dashboard.
+- CRUD de trabajadores.
+- Búsqueda y filtros.
+- Validaciones.
+- Mensajes con SweetAlert2.
+
+**No incluye** (queda como mejora futura si sobra tiempo):
+- Departamentos o cargos como tablas propias. Se usan listas fijas.
+- Roles de usuario distintos.
+- Registro de usuarios desde la app.
+- Historial de cambios.
+- Exportar a Excel/CSV.
+- Paginación.
+
+## 5. Requerimientos funcionales
+
+| ID | Requerimiento |
+|---|---|
+| **RF01** | El usuario puede iniciar sesión con correo y contraseña (Supabase Auth). |
+| **RF02** | El usuario puede cerrar sesión. |
+| **RF03** | Sin sesión iniciada, cualquier página interna redirige al login. |
+| **RF04** | El dashboard muestra: total de trabajadores, activos, ausentes (vacaciones + licencia), desvinculados, total mensual de sueldos, un gráfico de trabajadores por departamento y los últimos 5 ingresos. |
+| **RF05** | Se puede registrar un trabajador. |
+| **RF06** | Se puede ver el listado de trabajadores. |
+| **RF07** | Se puede editar un trabajador. |
+| **RF08** | Se puede eliminar un trabajador, previa confirmación. |
+| **RF09** | Se puede buscar por nombre, apellido o RUT, y filtrar por departamento y por estado. |
+| **RF10** | Los datos se validan antes de guardarse (ver la [sección 8](#8-validaciones)). |
+| **RF11** | Los resultados de las acciones (éxito, error, confirmación) se muestran con SweetAlert2. |
+
+**No funcionales:**
+- Las claves van en `.env` y nunca se suben a GitHub.
+- La base de datos tiene RLS: sin sesión no se accede a los datos.
+- La interfaz se adapta al celular.
+- Se usan solo datos ficticios.
+
+## 6. Base de datos (Supabase)
+
+Hay **una sola tabla**: `trabajadores`.
+
+| Campo | Tipo | Obligatorio | Reglas |
+|---|---|---|---|
+| `id` | `bigint` (identity) | auto | Clave primaria |
+| `rut` | `varchar(12)` | Sí | Único. Se guarda como `12345678-K` |
+| `nombre` | `varchar(60)` | Sí | |
+| `apellido` | `varchar(60)` | Sí | |
+| `correo` | `varchar(120)` | Sí | Único |
+| `telefono` | `varchar(20)` | No | |
+| `departamento` | `varchar(40)` | Sí | Uno de la lista fija |
+| `cargo` | `varchar(40)` | Sí | Uno de la lista fija |
+| `fecha_ingreso` | `date` | Sí | |
+| `sueldo` | `integer` | Sí | Mayor que 0 (en pesos) |
+| `estado` | `varchar(20)` | Sí | `activo`, `vacaciones`, `licencia` o `desvinculado`. Por defecto `activo` |
+| `created_at` | `timestamptz` | auto | Fecha de creación del registro |
+
+**Seguridad:** RLS activado, con una política que solo permite leer y escribir al rol `authenticated`.
+
+**Datos de prueba:** unos 12 trabajadores ficticios cargados con el mismo script SQL.
+
+### Listas fijas
+
+Están definidas **en el código** (en la clase `Trabajador`). Se usan en el formulario, en los filtros y en la validación.
+
+| Departamentos | Cargos | Estados |
 |---|---|---|
-| **RF01** | El sistema debe permitir iniciar sesión con correo y contraseña (Supabase Auth). | `routes/auth.py` |
-| **RF02** | El sistema debe permitir cerrar sesión. | `routes/auth.py` |
-| **RF03** | Las páginas internas solo deben ser accesibles con sesión iniciada; si no, redirigen al login. | `utils/seguridad.py` |
-| **RF04** | El dashboard debe mostrar: trabajadores vigentes, activos, ausentes (vacaciones/licencia), nómina mensual, sueldo promedio, gráfico por departamento, gráfico por estado y últimos ingresos. | `routes/dashboard.py`, `services/estadisticas.py` |
-| **RF05** | Se debe poder registrar un trabajador (RUT, nombres, apellidos, correo, teléfono, departamento, cargo, fecha de ingreso, sueldo y estado). | `routes/trabajadores.py` |
-| **RF06** | Se debe poder ver el listado de trabajadores con su departamento, cargo, antigüedad, sueldo y estado. | `trabajadores/lista.html` |
-| **RF07** | Se debe poder modificar los datos de un trabajador. | `routes/trabajadores.py` |
-| **RF08** | Se debe poder eliminar un trabajador, previa confirmación. | `routes/trabajadores.py`, `app.js` |
-| **RF09** | Se debe poder buscar trabajadores por nombre, apellido, RUT o correo, y filtrarlos por departamento y estado. | `RepositorioTrabajadores.buscar()` |
-| **RF10** | Se debe poder registrar, ver, modificar y eliminar departamentos. No se puede eliminar un departamento con trabajadores asociados. | `routes/departamentos.py` |
-| **RF11** | Se debe poder registrar, ver, modificar y eliminar cargos con su sueldo base. Al elegir un cargo en el formulario se sugiere su sueldo base. | `routes/cargos.py`, `app.js` |
-| **RF12** | Los formularios deben validar: campos obligatorios, RUT con dígito verificador, formato de correo, fecha de ingreso no futura, sueldo positivo y datos no duplicados (RUT, correo, nombre de departamento/cargo). La validación se hace en el navegador (JS) **y** en el servidor (Python). | `models/*.py`, `app.js` |
-| **RF13** | El sistema debe mostrar mensajes claros de éxito, error y confirmación con SweetAlert2. | `app.js`, `base.html` |
+| Administración | Gerente | Activo |
+| Operaciones | Jefe de área | Vacaciones |
+| Ventas | Analista | Licencia |
+| Tecnología | Asistente administrativo | Desvinculado |
+| Recursos Humanos | Ejecutivo de ventas | |
+| | Operario | |
+| | Técnico de soporte | |
 
-### Requerimientos no funcionales
+> **Por qué listas fijas y no tablas:** así no hay que construir pantallas extra para administrarlas y se evitan errores de tipeo ("Ventas" / "ventas"). Si más adelante se necesita cambiar una opción, basta con editar la lista en la clase.
 
-- **Seguridad:** las claves van en `.env` (nunca en GitHub). La base de datos tiene RLS, así que sin sesión no se puede leer ni escribir.
-- **Usabilidad:** la interfaz es *responsive* (computador y celular) y usa un lenguaje claro en español.
-- **Datos:** se usan exclusivamente datos ficticios.
-- **Mantenibilidad:** el código está separado en capas (rutas, servicios, modelos, vistas) y hay una clase por entidad.
+## 7. Pantallas
 
-## 4. Propuesta de solución
+| Ruta | Pantalla | Qué contiene |
+|---|---|---|
+| `/login` | **Login** | Correo, contraseña y botón Ingresar. |
+| `/dashboard` | **Dashboard** | 5 tarjetas (total, activos, ausentes, desvinculados, total de sueldos), gráfico de barras por departamento y tabla con los últimos 5 ingresos. |
+| `/trabajadores` | **Listado** | Buscador y filtros (departamento, estado). Tabla con RUT, nombre, departamento, cargo, fecha de ingreso, sueldo, estado y botones Editar/Eliminar. |
+| `/trabajadores/nuevo` | **Formulario** | Todos los campos de la tabla. Departamento, cargo y estado se eligen de un menú. |
+| `/trabajadores/<id>/editar` | **Formulario** | El mismo formulario, con los datos cargados. |
+| `/trabajadores/<id>/eliminar` | — | Solo POST, después de confirmar con SweetAlert2. |
+| `/logout` | — | Cierra la sesión y vuelve al login. |
 
-Una aplicación web **Flask + Supabase** llamada **TalentoRH**:
+Todas las pantallas, salvo el login, comparten un **menú superior** con el nombre del sistema, los enlaces a Dashboard y Trabajadores, el correo del usuario y el botón para cerrar sesión.
 
-1. El usuario de RR.HH. inicia sesión y llega a un **dashboard** con los indicadores del personal.
-2. Desde el menú lateral administra **Trabajadores**, **Departamentos** y **Cargos** (CRUD completo).
-3. El listado de trabajadores tiene **buscador y filtros** para encontrar a una persona en segundos.
-4. Todo dato se **valida dos veces**: en el navegador, para dar una respuesta inmediata, y en el servidor, que es la validación que no se puede saltar.
-5. La información vive en una sola base de datos en la nube (Supabase), protegida con RLS.
+## 8. Validaciones
 
-## 5. Arquitectura
+Se validan **en el navegador** (HTML + JavaScript, para avisar al instante) y **en el servidor** (clase `Trabajador`, que es la validación que no se puede saltar).
 
-```mermaid
-flowchart LR
-    U[Navegador<br>HTML + CSS + JS] -- "petición HTTP" --> R
-    subgraph Flask [Servidor Flask · Python]
-        R[routes/<br>Blueprints] --> S[services/<br>Repositorios · Auth · Estadísticas]
-        S --> M[models/<br>Entidad · Trabajador · Departamento · Cargo]
-        R --> T[templates/<br>Jinja2]
-    end
-    S -- "supabase-py + token del usuario" --> DB[(Supabase<br>PostgreSQL + Auth + RLS)]
-    T -- "HTML" --> U
+| Campo | Regla | Mensaje |
+|---|---|---|
+| Todos los obligatorios | No vacíos | "Este campo es obligatorio." |
+| RUT | Dígito verificador correcto (módulo 11) | "El RUT no es válido." |
+| RUT / correo | No repetidos | "Ya existe un trabajador con ese RUT / correo." |
+| Nombre / apellido | Solo letras, 2–60 caracteres | "Solo letras (2 a 60 caracteres)." |
+| Correo | Formato `algo@dominio.cl` | "El correo no tiene un formato válido." |
+| Teléfono (opcional) | 8–15 dígitos | "El teléfono no es válido." |
+| Departamento / cargo / estado | Que sea una opción de la lista | "Selecciona una opción válida." |
+| Fecha de ingreso | Que no sea futura | "La fecha de ingreso no puede ser futura." |
+| Sueldo | Número entero mayor que 0 | "Ingresa un sueldo válido." |
+
+## 9. Arquitectura y estructura
+
+```
+Navegador (HTML + CSS + JS)  ⇄  Flask (app.py)  ⇄  Supabase (Auth + tabla trabajadores)
 ```
 
-| Tecnología | Rol en el proyecto |
+```
+sistema_rrhh/
+├── app.py               # Rutas de Flask, login_requerido
+├── trabajador.py        # Clase Trabajador: datos, listas fijas, validar()
+├── repositorio.py       # Clase RepositorioTrabajadores: consultas a Supabase
+├── requirements.txt
+├── .env.example         # SECRET_KEY, SUPABASE_URL, SUPABASE_KEY (sin valores)
+├── .gitignore           # .env, venv/, __pycache__/
+├── README.md
+├── supabase/
+│   └── esquema.sql      # Tabla, RLS y datos ficticios
+├── templates/
+│   ├── base.html        # Estructura común + menú
+│   ├── login.html
+│   ├── dashboard.html
+│   ├── trabajadores.html
+│   └── formulario.html
+├── static/
+│   ├── css/styles.css
+│   └── js/app.js        # SweetAlert2, validación de RUT, gráfico
+└── docs/
+```
+
+| Tecnología | Para qué se usa |
 |---|---|
-| **HTML (Jinja2)** | Estructura de las páginas. `base.html` → `panel.html` → cada vista (herencia de plantillas). |
-| **CSS** | Diseño propio en `static/css/styles.css`: variables de color, componentes y *responsive*. |
-| **JavaScript** | `static/js/app.js`: SweetAlert2 (mensajes/confirmaciones), validación y formato de RUT, sugerencia de sueldo, gráficos Chart.js, menú móvil. |
-| **Flask** | Servidor web: rutas (Blueprints), sesión del usuario y validación en el servidor. |
-| **Supabase** | Autenticación (correo/contraseña) y base de datos PostgreSQL con políticas RLS. |
+| **HTML (Jinja2)** | Las 5 plantillas. Todas heredan de `base.html`. |
+| **CSS** | Diseño propio: colores, tarjetas, tabla, formulario y versión para celular. |
+| **JavaScript** | SweetAlert2 (mensajes y confirmación al eliminar), validación del RUT y gráfico del dashboard (Chart.js). |
+| **Flask** | Rutas, sesión del usuario y validación en el servidor. |
+| **Supabase** | Login (Auth) y base de datos PostgreSQL con RLS. |
 
-**Flujo de una petición (ejemplo: registrar trabajador):**
-`formulario (JS valida)` → `POST /trabajadores/nuevo` → `Trabajador.desde_formulario()` → `trabajador.validar()` → `RepositorioTrabajadores.crear()` → Supabase `INSERT` (RLS verifica el token) → `flash("…registrado")` → redirección → SweetAlert2 muestra el mensaje.
+### Programación Orientada a Objetos
 
-## 6. Programación Orientada a Objetos en el proyecto
-
-| Concepto | Dónde se aplica |
-|---|---|
-| **Clases y objetos** | `Trabajador`, `Departamento`, `Cargo`, `RepositorioTrabajadores`, `ServicioAutenticacion`, `ServicioEstadisticas`… Cada fila de la BD se convierte en un objeto. |
-| **Abstracción** | `Entidad` (clase abstracta, `ABC`) define qué debe saber hacer toda entidad: `validar()`, `a_dict()`, `desde_dict()`. |
-| **Herencia** | `Trabajador`, `Departamento` y `Cargo` heredan de `Entidad`. `RepositorioTrabajadores`, `RepositorioDepartamentos` y `RepositorioCargos` heredan el CRUD de `Repositorio`. |
-| **Polimorfismo** | `validar()` llama a `_reglas()`, y cada subclase la implementa distinto. Las rutas llaman `entidad.validar()` sin saber qué tipo de entidad es. |
-| **Encapsulamiento** | Los errores se guardan en `_errores` (protegido) y se leen con la propiedad `errores`. El cliente de Supabase se guarda en `_cliente`. |
-| **Propiedades** (`@property`) | `nombre_completo`, `antiguedad_anios`, `iniciales`, `esta_vigente`. |
-| **Métodos de clase** | `desde_dict()` y `desde_formulario()` crean objetos a partir de datos. |
-| **Excepciones propias** | `ErrorDatos` y `ErrorAutenticacion` traducen errores técnicos a mensajes para el usuario. |
-
-## 7. Organización del equipo (6 integrantes)
-
-Cada persona **es dueña de una parte**: la estudia hasta poder explicarla, la prueba, la mejora con sus propios commits y la documenta en el informe. Si el equipo es más chico, se juntan los roles 5 y 6 o los roles 3 y 4.
-
-| # | Rol | Archivos a cargo | Qué debe poder explicar |
-|---|---|---|---|
-| 1 | **Base de datos y Supabase** (líder técnico) | `supabase/*.sql`, `services/conexion.py`, `services/repositorios.py` | Tablas, relaciones, RLS, cómo Flask consulta Supabase y cómo se traducen los errores. |
-| 2 | **Autenticación y seguridad** | `routes/auth.py`, `services/autenticacion.py`, `utils/seguridad.py`, `config.py`, `.env.example`, `.gitignore` | Login, sesión, decorador `login_requerido`, renovación del token y por qué `.env` no se sube. |
-| 3 | **Módulo Trabajadores** | `models/trabajador.py`, `routes/trabajadores.py`, `templates/trabajadores/` | CRUD completo, búsqueda y filtros, validaciones del trabajador (RUT). |
-| 4 | **Departamentos, Cargos y POO** | `models/entidad.py`, `models/departamento.py`, `models/cargo.py`, sus rutas y plantillas | Clase abstracta, herencia y polimorfismo; por qué no se puede borrar un departamento con personal. |
-| 5 | **Dashboard y JavaScript** | `services/estadisticas.py`, `routes/dashboard.py`, `templates/dashboard.html`, `static/js/app.js` | Cálculo de indicadores, Chart.js, SweetAlert2 y validación en el navegador. |
-| 6 | **Diseño, pruebas e informe** | `static/css/styles.css`, `templates/base.html`, `panel.html`, `login.html`, `docs/PRUEBAS.md` | Diseño y *responsive*, plan de pruebas y evidencias. Coordina el informe. |
-
-**Todos:** ejecutar el proyecto en su computador, hacer al menos 4 pruebas de `docs/PRUEBAS.md` con captura, y escribir en el informe la sección de su parte.
-
-## 8. Cronograma
-
-| Día | Tareas | Responsable |
+| Clase | Qué representa | Contenido |
 |---|---|---|
-| **Jue 24/09** | Base del proyecto lista. Crear repositorio GitHub e invitar al equipo. Crear proyecto Supabase, ejecutar los SQL y crear el usuario de prueba. | 1, 2 |
-| **Vie 25/09** | Cada integrante clona el repo, crea su `.env`, ejecuta la app y **lee a fondo sus archivos**. Se elige una mejora del backlog por persona. | Todos |
-| **Sáb 26 – Dom 27** | Desarrollar las mejoras en ramas propias con *pull request*. Ejecutar las pruebas de `PRUEBAS.md` contra Supabase real y tomar las capturas. | Todos |
-| **Lun 28/09** | Cerrar el informe (usar `docs/GUIA_INFORME.md`), completar el README con los nombres, revisar la [lista de entrega](#10-lista-de-entrega-según-rúbrica) y ensayar la presentación. | 6 + todos |
-| **Mar 29/09** | Entrega y presentación. | Todos |
+| `Trabajador` | Un trabajador de la empresa | Atributos (rut, nombre…), constantes con las listas fijas, `validar()`, `a_dict()`, `desde_dict()`, propiedades `nombre_completo` y `antiguedad` |
+| `RepositorioTrabajadores` | El acceso a la tabla en Supabase | `listar()`, `buscar()`, `obtener()`, `crear()`, `actualizar()`, `eliminar()` |
 
-### Forma de trabajo en GitHub
+Conceptos que se pueden mostrar en la presentación:
+- **Encapsulamiento:** el cliente de Supabase queda dentro del repositorio.
+- **Constructor:** `__init__`.
+- **Métodos de instancia y de clase.**
+- **Propiedades.**
+- **Separación de responsabilidades:** `Trabajador` valida y `RepositorioTrabajadores` guarda.
 
-1. `main` siempre debe funcionar. Nadie sube directo a `main`.
-2. Cada tarea va en una rama: `git checkout -b mejora/ficha-trabajador`.
-3. Se hacen commits pequeños y descriptivos, como `Agrega paginación al listado de trabajadores`.
-4. Se abre un *pull request* y otro integrante lo revisa antes de unirlo.
-5. **Nunca** se hace `git add .env`. Antes de cada commit, revisen `git status`.
+## 10. Organización del equipo
 
-> Los commits y *pull requests* de cada integrante son la evidencia de colaboración que pide la rúbrica, así que cada persona debe subir su propio trabajo desde su cuenta.
+| # | Responsable de | Archivos |
+|---|---|---|
+| 1 | Supabase: proyecto, tabla, RLS y datos ficticios | `supabase/esquema.sql`, `repositorio.py` |
+| 2 | Login, sesión y seguridad | Rutas de login/logout en `app.py`, `.env.example`, `.gitignore` |
+| 3 | Clase Trabajador y validaciones | `trabajador.py` |
+| 4 | CRUD, búsqueda y filtros | Rutas de trabajadores en `app.py`, `trabajadores.html`, `formulario.html` |
+| 5 | Dashboard y JavaScript | `dashboard.html`, `static/js/app.js` |
+| 6 | Diseño, pruebas e informe | `base.html`, `login.html`, `static/css/styles.css`, `docs/PRUEBAS.md` |
 
-## 9. Backlog de mejoras (para repartir)
+Cada integrante debe poder **explicar su parte** y subirla con **sus propios commits**, que son la evidencia de colaboración que pide la rúbrica. Si el equipo tiene menos de 6 personas, se juntan los roles 5 y 6.
 
-Ordenado de menor a mayor dificultad. Cada integrante debería tomar **al menos una**.
+## 11. Cronograma
 
-- [ ] Ficha de detalle del trabajador (`/trabajadores/<id>`) con todos sus datos y su antigüedad.
-- [ ] Buscar por nombre completo (por ejemplo "Camila Rojas") separando las palabras.
-- [ ] Ordenar el listado al hacer clic en el encabezado de una columna.
-- [ ] Paginación del listado (usando `.range()` de Supabase).
-- [ ] Exportar el listado filtrado a CSV.
-- [ ] Nuevo indicador en el dashboard: antigüedad promedio o aniversarios del mes.
-- [ ] Botón para cambiar el estado de un trabajador directamente desde el listado.
-- [ ] Modo oscuro con variables CSS.
-- [ ] Roles: tabla `perfiles` (`admin` / `consulta`) y políticas RLS según el rol.
-- [ ] Módulo de ausencias: tabla `ausencias` (trabajador, tipo, fecha inicio/fin) que actualice el estado del trabajador.
+| Día | Qué se hace |
+|---|---|
+| **Vie 25/09** | Aprobar este plan. Crear el proyecto en Supabase y la tabla. Repartir los roles. |
+| **Sáb 26/09** | Login, clase `Trabajador`, repositorio y CRUD básico funcionando. |
+| **Dom 27/09** | Dashboard, búsqueda y filtros, JavaScript y diseño CSS. |
+| **Lun 28/09** | Pruebas (`PRUEBAS.md`), capturas, informe y README. |
+| **Mar 29/09** | Entrega y presentación. |
 
-## 10. Lista de entrega (según rúbrica)
+## 12. Lista de entrega (según rúbrica)
 
-**Aplicación**
-- [ ] Login con correo y contraseña funcionando contra Supabase.
-- [ ] Dashboard con indicadores reales.
-- [ ] CRUD de trabajadores, departamentos y cargos probado.
-- [ ] Búsqueda y filtros funcionando.
-- [ ] Validaciones y mensajes SweetAlert2 probados, incluidos los casos de error.
-- [ ] Solo datos ficticios.
-
-**Repositorio GitHub**
-- [ ] `README.md` con instalación, ejecución y nombres del equipo.
-- [ ] `requirements.txt`, `.gitignore` y `.env.example` sin claves reales.
-- [ ] **Sin** `.env` ni `venv/` (revisar en la web de GitHub).
+- [ ] Login, dashboard, CRUD, búsqueda/filtros, validaciones y SweetAlert2 funcionando con Supabase.
+- [ ] Carpetas `templates/`, `static/css/` y `static/js/` usadas correctamente.
+- [ ] `README.md`, `requirements.txt`, `.gitignore` y `.env.example` en el repositorio.
+- [ ] Sin `.env` ni `venv/` en GitHub.
 - [ ] Commits de todos los integrantes.
-
-**Informe y presentación**
-- [ ] Informe con las 13 secciones (ver `docs/GUIA_INFORME.md`).
-- [ ] Tabla de pruebas completa con resultados obtenidos.
-- [ ] Capturas: login, dashboard, formularios, validaciones, alertas, Supabase (tablas y usuarios) y GitHub.
-- [ ] Enlace al repositorio en el informe.
-- [ ] Cada integrante puede explicar su parte técnica.
+- [ ] Informe con las 13 secciones (`docs/GUIA_INFORME.md`) y la tabla de pruebas completa.
+- [ ] Capturas de la app, de Supabase y de GitHub.
+- [ ] Cada integrante puede explicar su parte.
