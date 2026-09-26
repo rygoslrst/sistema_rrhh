@@ -1,107 +1,72 @@
-# TalentoRH — Sistema de Gestión de Recursos Humanos
+# TalentoRH — Control de trabajadores
 
-Aplicación web para administrar el personal de una empresa: trabajadores, departamentos y cargos, con un dashboard de indicadores. Está hecha con **Python + Flask** y usa **Supabase** para la autenticación y la base de datos.
+Aplicación web para que el área de Recursos Humanos registre y controle a los trabajadores de una empresa. Está hecha con **Python + Flask** y usa **Supabase** para el inicio de sesión y la base de datos.
 
 > Proyecto académico — Evaluación II y III de Programación Orientada a Objeto, 4º Medio H.
 > **Todos los datos son ficticios.**
 
 ## Funcionalidades
 
-- 🔐 Inicio de sesión con correo y contraseña (Supabase Auth) y rutas protegidas.
-- 📊 Dashboard: trabajadores vigentes, activos, ausentes, nómina mensual, gráficos por departamento y estado, y últimos ingresos.
-- 👥 CRUD de **trabajadores** con búsqueda (nombre, RUT, correo) y filtros (departamento, estado).
-- 🏢 CRUD de **departamentos** y 💼 **cargos**. No permite borrar un departamento o cargo que tenga personal.
-- ✅ Validaciones en el navegador y en el servidor: RUT chileno con dígito verificador, correo, fechas, sueldos y duplicados.
-- 💬 Mensajes y confirmaciones con SweetAlert2.
-- 📱 Diseño propio y *responsive*.
+- Inicio de sesión con correo y contraseña (Supabase Auth). Sin sesión no se puede entrar a ninguna página interna.
+- **Dashboard:** total de trabajadores, activos, ausentes, desvinculados, total de sueldos, gráfico por departamento y últimos ingresos.
+- **Trabajadores:** registrar, listar, editar y eliminar (con confirmación).
+- **Búsqueda** por nombre, apellido o RUT, y **filtros** por departamento y estado.
+- **Validaciones** en el navegador y en el servidor: RUT con dígito verificador, correo, fecha de ingreso, sueldo y datos repetidos.
+- Mensajes con **SweetAlert2** y diseño adaptado a celulares.
 
 ## Tecnologías
 
-| Capa | Tecnología |
-|---|---|
-| Backend | Python 3.11+, Flask 3 |
-| Base de datos y autenticación | Supabase (PostgreSQL + Auth + RLS), librería `supabase-py` |
-| Frontend | HTML (Jinja2), CSS propio, JavaScript |
-| Librerías JS (CDN) | SweetAlert2, Chart.js, Bootstrap Icons |
+Python 3.10+, Flask 3, Supabase (PostgreSQL + Auth), HTML con Jinja2, CSS propio y JavaScript con SweetAlert2 y Chart.js.
 
-## Estructura del proyecto
+## Estructura
 
 ```
 sistema_rrhh/
-├── app.py                  # Crea la app Flask y registra las rutas
-├── config.py               # Lee las variables de entorno (.env)
+├── app.py               # Rutas de Flask y protección de páginas (login_requerido)
+├── trabajador.py        # Clase Trabajador: datos, listas fijas y validaciones
+├── repositorio.py       # Login y clase RepositorioTrabajadores (consultas a Supabase)
 ├── requirements.txt
-├── .env.example            # Plantilla de variables (sin claves reales)
-├── models/                 # Clases de dominio (POO)
-│   ├── entidad.py          #   Clase abstracta base
-│   ├── trabajador.py
-│   ├── departamento.py
-│   └── cargo.py
-├── services/               # Lógica y acceso a datos
-│   ├── conexion.py         #   Cliente de Supabase por usuario
-│   ├── autenticacion.py    #   Login y renovación de sesión
-│   ├── repositorios.py     #   CRUD genérico + un repositorio por tabla
-│   └── estadisticas.py     #   Indicadores del dashboard
-├── routes/                 # Blueprints de Flask (una por módulo)
-│   ├── auth.py  dashboard.py  trabajadores.py  departamentos.py  cargos.py
-├── utils/
-│   ├── seguridad.py        #   Decorador login_requerido, sesión
-│   └── validadores.py      #   RUT, correo, conversiones
-├── templates/              # Vistas HTML (Jinja2)
-│   ├── base.html  panel.html  login.html  dashboard.html  error.html  macros.html
-│   ├── trabajadores/  departamentos/  cargos/
+├── .env.example         # Variables necesarias (sin valores reales)
+├── supabase/
+│   └── esquema.sql      # Tabla, permisos y datos ficticios
+├── templates/           # base, login, dashboard, trabajadores, formulario
 ├── static/
 │   ├── css/styles.css
 │   ├── js/app.js
 │   └── img/favicon.svg
-├── supabase/
-│   ├── 01_esquema.sql      # Tablas, relaciones, RLS
-│   └── 02_datos_ficticios.sql
-└── docs/                   # Planificación, BD, pruebas y guía del informe
+└── docs/                # Planificación, pruebas y guía del informe
 ```
 
-## Instalación y ejecución
+## Instalación
 
-### 1. Clonar el repositorio
+### 1. Descargar el proyecto e instalar las dependencias
 
 ```bash
-git clone https://github.com/USUARIO/sistema_rrhh.git
+git clone https://github.com/rygoslrst/sistema_rrhh.git
 cd sistema_rrhh
-```
-
-### 2. Crear el entorno virtual e instalar las dependencias
-
-**Windows (PowerShell):**
-```powershell
 python -m venv venv
-venv\Scripts\activate
+```
+
+Activar el entorno virtual:
+- **Windows:** `venv\Scripts\activate`
+- **macOS / Linux:** `source venv/bin/activate`
+
+```bash
 pip install -r requirements.txt
 ```
 
-**macOS / Linux:**
-```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
+### 2. Preparar Supabase (lo hace una sola persona del equipo)
 
-### 3. Configurar Supabase (una sola vez, lo hace una persona del equipo)
+1. Crear un proyecto en [supabase.com](https://supabase.com).
+2. Ir a **SQL Editor → New query**, pegar el contenido de `supabase/esquema.sql` y presionar **Run**.
+3. Ir a **Authentication → Users → Add user → Create new user**, ingresar un correo ficticio (ej.: `rrhh@losandes-demo.cl`) y una contraseña, y marcar **Auto Confirm User**.
+4. En **Project Settings → API Keys** (o con el botón **Connect**), copiar la **Project URL** y la clave **anon / publishable**.
 
-1. Crear un proyecto en [supabase.com](https://supabase.com) (región sugerida: *South America (São Paulo)*).
-2. Ir a **SQL Editor → New query**, pegar el contenido de `supabase/01_esquema.sql` y presionar **Run**.
-3. Repetir con `supabase/02_datos_ficticios.sql` para cargar los datos de prueba.
-4. Ir a **Authentication → Users → Add user → Create new user**, ingresar un correo ficticio (ej.: `admin@losandes-demo.cl`) y una contraseña, y marcar **Auto Confirm User**.
-5. En **Project Settings → API Keys** (o con el botón **Connect**) copiar la **Project URL** y la clave **anon / publishable**.
+> ⚠️ Nunca usen la clave `service_role` / `secret`.
 
-> ⚠️ Nunca usen la clave `service_role` / `secret` en este proyecto.
+### 3. Crear el archivo `.env`
 
-### 4. Crear el archivo `.env`
-
-```bash
-cp .env.example .env        # En Windows: copy .env.example .env
-```
-
-Completar los valores:
+Copiar `.env.example` con el nombre `.env` y completar los valores:
 
 ```env
 SECRET_KEY=una_clave_larga_y_aleatoria
@@ -111,37 +76,38 @@ SUPABASE_KEY=clave_anon_o_publishable
 
 Para generar `SECRET_KEY`: `python -c "import secrets; print(secrets.token_hex(32))"`
 
-### 5. Ejecutar
+El archivo `.env` **no se sube a GitHub** porque está en `.gitignore`.
+
+### 4. Ejecutar
 
 ```bash
 python app.py
 ```
 
-Abrir <http://127.0.0.1:5000> e iniciar sesión con el usuario creado en el paso 3.4.
+Abrir <http://127.0.0.1:5000> e ingresar con el usuario creado en Supabase.
 
-## Seguridad
+## Seguridad dentro del sistema
 
-- Las claves solo existen en `.env`, que está en `.gitignore`. En GitHub solo se sube `.env.example`.
-- La base de datos tiene **Row Level Security**: sin sesión iniciada no se puede leer ni escribir ningún dato.
-- Flask consulta Supabase con el **token del usuario conectado**, no con una clave maestra.
-- La cookie de sesión es `HttpOnly` y `SameSite=Lax`. Las acciones que modifican datos se hacen con `POST`.
+- Para usar cualquier página hay que iniciar sesión; si no, el sistema redirige al login.
+- Los formularios validan los datos antes de guardarlos y se pide confirmación antes de eliminar.
+- Las claves solo están en `.env`. En GitHub se sube únicamente `.env.example`.
+- Como es un proyecto de prueba con datos ficticios, la base de datos no tiene protección adicional (sin políticas RLS).
 
 ## Documentación
 
-- [Planificación: problema, requerimientos, arquitectura, POO y reparto del equipo](docs/PLANIFICACION.md)
-- [Diseño de la base de datos](docs/BASE_DE_DATOS.md)
+- [Planificación del proyecto](docs/PLANIFICACION.md)
 - [Plan de pruebas](docs/PRUEBAS.md)
 - [Guía del informe](docs/GUIA_INFORME.md)
 
 ## Equipo
 
-| Integrante | Rol |
+| Integrante | Responsable de |
 |---|---|
-| *Nombre 1* | Base de datos y Supabase |
-| *Nombre 2* | Autenticación y seguridad |
-| *Nombre 3* | Módulo Trabajadores |
-| *Nombre 4* | Departamentos, Cargos y POO |
+| *Nombre 1* | Supabase y repositorio |
+| *Nombre 2* | Login y protección de páginas |
+| *Nombre 3* | Clase Trabajador y validaciones |
+| *Nombre 4* | CRUD, búsqueda y filtros |
 | *Nombre 5* | Dashboard y JavaScript |
 | *Nombre 6* | Diseño, pruebas e informe |
 
-Docente: *Nombre del docente* · Curso: 4º Medio H · Septiembre 2026
+Docente: *Nombre del docente* · 4º Medio H · Septiembre 2026

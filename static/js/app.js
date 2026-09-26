@@ -1,261 +1,190 @@
 /* ==========================================================================
-   TalentoRH · JavaScript del sitio
-   - Mensajes y confirmaciones con SweetAlert2
-   - Validación de formularios en el navegador (incluye RUT chileno)
-   - Menú lateral en móviles, filtros automáticos y gráficos del dashboard
+   TalentoRH · JavaScript
+   1. Mensajes de Flask con SweetAlert2
+   2. Confirmación antes de eliminar
+   3. RUT chileno (formato y dígito verificador)
+   4. Validación de formularios en el navegador
+   5. Filtros que se aplican solos
+   6. Gráfico del dashboard (Chart.js)
    ========================================================================== */
 
-const COLOR_PRIMARIO = "#0f766e";
+const COLOR_PRINCIPAL = "#0f766e";
 
-/* ---------- Mensajes de Flask con SweetAlert2 ---------- */
-function mostrarMensajesFlash() {
-  const nodo = document.getElementById("mensajes-flash");
-  if (!nodo || !window.Swal) return;
+/* 1. Mensajes de Flask con SweetAlert2 */
+function mostrarMensajes() {
+  const mensajes = JSON.parse(document.getElementById("mensajes").textContent);
 
-  const mensajes = JSON.parse(nodo.textContent || "[]");
-  mensajes.forEach(([categoria, texto]) => {
-    const icono = ["success", "error", "warning", "info"].includes(categoria) ? categoria : "info";
-    if (icono === "success" || icono === "info") {
-      // Los mensajes positivos se muestran como aviso pequeño que se cierra solo
-      Swal.fire({
-        toast: true, position: "top-end", icon: icono, title: texto,
-        showConfirmButton: false, timer: 3200, timerProgressBar: true,
-      });
+  for (const [tipo, texto] of mensajes) {
+    if (tipo === "success") {
+      // Los mensajes de éxito aparecen en una esquina y se cierran solos
+      Swal.fire({ toast: true, position: "top-end", icon: "success", title: texto,
+                  showConfirmButton: false, timer: 3000, timerProgressBar: true });
     } else {
-      Swal.fire({
-        icon: icono, title: icono === "error" ? "Atención" : "Aviso", text: texto,
-        confirmButtonColor: COLOR_PRIMARIO, confirmButtonText: "Entendido",
-      });
+      Swal.fire({ icon: tipo === "error" ? "error" : "warning", title: "Atención", text: texto,
+                  confirmButtonColor: COLOR_PRINCIPAL, confirmButtonText: "Entendido" });
     }
-  });
+  }
 }
 
-/* ---------- Confirmación antes de eliminar ---------- */
+/* 2. Confirmación antes de eliminar (formularios con data-confirmar) */
 function activarConfirmaciones() {
   document.querySelectorAll("form[data-confirmar]").forEach((formulario) => {
     formulario.addEventListener("submit", async (evento) => {
-      if (formulario.dataset.confirmado) return;
       evento.preventDefault();
       const respuesta = await Swal.fire({
         icon: "warning",
-        title: "¿Estás seguro?",
+        title: "¿Eliminar trabajador?",
         text: formulario.dataset.confirmar,
         showCancelButton: true,
         confirmButtonText: "Sí, eliminar",
         cancelButtonText: "Cancelar",
         confirmButtonColor: "#dc2626",
         reverseButtons: true,
-        focusCancel: true,
       });
       if (respuesta.isConfirmed) {
-        formulario.dataset.confirmado = "1";
-        formulario.submit();
+        formulario.submit(); // submit() no vuelve a disparar este evento
       }
     });
   });
 }
 
-/* ---------- RUT chileno ---------- */
-const Rut = {
-  limpiar: (rut) => rut.replace(/[^0-9kK]/g, "").toUpperCase(),
+/* 3. RUT chileno */
+function limpiarRut(rut) {
+  return rut.replace(/[^0-9kK]/g, "").toUpperCase();
+}
 
-  calcularDv(cuerpo) {
-    let suma = 0;
-    let multiplicador = 2;
-    for (let i = cuerpo.length - 1; i >= 0; i--) {
-      suma += Number(cuerpo[i]) * multiplicador;
-      multiplicador = multiplicador === 7 ? 2 : multiplicador + 1;
-    }
-    const resto = 11 - (suma % 11);
-    return resto === 11 ? "0" : resto === 10 ? "K" : String(resto);
-  },
+function calcularDv(numero) {
+  let suma = 0;
+  let multiplicador = 2;
+  for (let i = numero.length - 1; i >= 0; i--) {
+    suma += Number(numero[i]) * multiplicador;
+    multiplicador = multiplicador === 7 ? 2 : multiplicador + 1;
+  }
+  const resto = 11 - (suma % 11);
+  if (resto === 11) return "0";
+  if (resto === 10) return "K";
+  return String(resto);
+}
 
-  esValido(rut) {
-    const limpio = Rut.limpiar(rut);
-    if (limpio.length < 8) return false;
-    const cuerpo = limpio.slice(0, -1);
-    return /^\d+$/.test(cuerpo) && Rut.calcularDv(cuerpo) === limpio.slice(-1);
-  },
+function rutValido(rut) {
+  const limpio = limpiarRut(rut);
+  const numero = limpio.slice(0, -1);
+  return limpio.length >= 8 && /^\d+$/.test(numero) && calcularDv(numero) === limpio.slice(-1);
+}
 
-  formatear(rut) {
-    const limpio = Rut.limpiar(rut);
-    if (limpio.length < 2) return limpio;
-    const cuerpo = limpio.slice(0, -1).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    return `${cuerpo}-${limpio.slice(-1)}`;
-  },
-};
+function formatearRut(rut) {
+  const limpio = limpiarRut(rut);
+  if (limpio.length < 2) return limpio;
+  const numero = limpio.slice(0, -1).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return `${numero}-${limpio.slice(-1)}`;
+}
 
-function activarCamposRut() {
-  document.querySelectorAll("input[data-rut]").forEach((input) => {
-    input.addEventListener("input", () => {
-      input.value = Rut.formatear(input.value);
-      input.setCustomValidity("");
-    });
-    input.addEventListener("blur", () => {
-      const valido = input.value === "" || Rut.esValido(input.value);
-      input.setCustomValidity(valido ? "" : "El RUT no es válido (revisa el dígito verificador).");
-      marcarCampo(input);
-    });
+function activarCampoRut() {
+  const input = document.querySelector("input[data-rut]");
+  if (!input) return;
+
+  // Mientras se escribe, se agregan los puntos y el guion
+  input.addEventListener("input", () => {
+    input.value = formatearRut(input.value);
+    input.setCustomValidity("");
+  });
+  // Al salir del campo, se revisa el dígito verificador
+  input.addEventListener("blur", () => {
+    const valido = input.value === "" || rutValido(input.value);
+    input.setCustomValidity(valido ? "" : "El RUT no es válido.");
+    marcarCampo(input);
   });
 }
 
-/* ---------- Validación de formularios ---------- */
-function mensajeCampo(input) {
-  if (input.validity.customError) return input.validationMessage;
+/* 4. Validación de formularios (formularios con data-validar) */
+function mensajeDeError(input) {
   if (input.validity.valueMissing) return "Este campo es obligatorio.";
-  if (input.validity.typeMismatch && input.type === "email") return "Ingresa un correo válido.";
+  if (input.validity.customError) return input.validationMessage;
+  if (input.validity.typeMismatch) return "El correo no tiene un formato válido.";
   if (input.validity.tooShort) return `Debe tener al menos ${input.minLength} caracteres.`;
-  if (input.validity.rangeUnderflow) return `El valor mínimo es ${input.min}.`;
-  if (input.validity.rangeOverflow) return input.type === "date" ? "La fecha no puede ser futura." : `El valor máximo es ${input.max}.`;
-  if (input.validity.patternMismatch) return "El formato no es válido.";
+  if (input.validity.rangeOverflow) return "La fecha de ingreso no puede ser futura.";
+  if (input.validity.rangeUnderflow || input.validity.badInput) return "Ingresa un sueldo válido.";
+  if (input.validity.patternMismatch) return "El teléfono no es válido.";
   return input.validationMessage;
 }
 
 function marcarCampo(input) {
   const campo = input.closest(".campo");
-  if (!campo) return;
   const valido = input.checkValidity();
   campo.classList.toggle("invalido", !valido);
 
   let error = campo.querySelector(".error-campo");
-  if (!valido) {
-    if (!error) {
-      error = document.createElement("span");
-      error.className = "error-campo";
-      campo.appendChild(error);
-    }
-    error.innerHTML = `<i class="bi bi-exclamation-circle"></i> ${mensajeCampo(input)}`;
-  } else if (error) {
-    error.remove();
+  if (valido) {
+    if (error) error.remove();
+    return;
   }
+  if (!error) {
+    error = document.createElement("span");
+    error.className = "error-campo";
+    campo.appendChild(error);
+  }
+  error.textContent = mensajeDeError(input);
 }
 
 function activarValidacion() {
   document.querySelectorAll("form[data-validar]").forEach((formulario) => {
-    const campos = formulario.querySelectorAll("input, select, textarea");
-
-    campos.forEach((input) => {
-      input.addEventListener("change", () => marcarCampo(input));
-    });
+    const campos = formulario.querySelectorAll("input, select");
+    campos.forEach((input) => input.addEventListener("change", () => marcarCampo(input)));
 
     formulario.addEventListener("submit", (evento) => {
       campos.forEach(marcarCampo);
       if (!formulario.checkValidity()) {
         evento.preventDefault();
-        const primero = formulario.querySelector(".campo.invalido input, .campo.invalido select, .campo.invalido textarea, :invalid");
-        if (primero) primero.focus();
-        Swal.fire({
-          icon: "error",
-          title: "Formulario incompleto",
-          text: "Revisa los campos marcados en rojo antes de continuar.",
-          confirmButtonColor: COLOR_PRIMARIO,
-          confirmButtonText: "Entendido",
-        });
+        Swal.fire({ icon: "error", title: "Faltan datos",
+                    text: "Revisa los campos marcados en rojo.",
+                    confirmButtonColor: COLOR_PRINCIPAL, confirmButtonText: "Entendido" });
       }
     });
   });
 }
 
-/* ---------- Sugerir sueldo según el cargo elegido ---------- */
-function activarSugerenciaSueldo() {
-  document.querySelectorAll("select[data-sugerir-sueldo]").forEach((select) => {
-    const inputSueldo = document.getElementById(select.dataset.sugerirSueldo);
-    if (!inputSueldo) return;
-    select.addEventListener("change", () => {
-      const sueldoBase = select.selectedOptions[0]?.dataset.sueldo;
-      if (sueldoBase && !inputSueldo.value) {
-        inputSueldo.value = sueldoBase;
-        marcarCampo(inputSueldo);
-      }
-    });
+/* 5. En el listado, los filtros se aplican apenas se elige una opción */
+function activarFiltros() {
+  document.querySelectorAll("select[data-enviar-al-cambiar]").forEach((select) => {
+    select.addEventListener("change", () => select.form.submit());
   });
 }
 
-/* ---------- Otros detalles de la interfaz ---------- */
-function activarVerPassword() {
-  document.querySelectorAll("[data-ver-password]").forEach((boton) => {
-    const input = document.getElementById(boton.dataset.verPassword);
-    boton.addEventListener("click", () => {
-      const oculto = input.type === "password";
-      input.type = oculto ? "text" : "password";
-      boton.innerHTML = `<i class="bi ${oculto ? "bi-eye-slash" : "bi-eye"}"></i>`;
-    });
-  });
-}
+/* 6. Gráfico de barras del dashboard */
+function dibujarGrafico() {
+  const datos = document.getElementById("datos-grafico");
+  if (!datos || !window.Chart) return;
+  const porDepartamento = JSON.parse(datos.textContent);
 
-function activarMenuMovil() {
-  document.querySelectorAll("[data-abrir-menu]").forEach((boton) =>
-    boton.addEventListener("click", () => document.body.classList.add("menu-abierto"))
-  );
-  document.querySelectorAll("[data-cerrar-menu]").forEach((fondo) =>
-    fondo.addEventListener("click", () => document.body.classList.remove("menu-abierto"))
-  );
-}
-
-function activarFiltrosAutomaticos() {
-  document.querySelectorAll("form[data-filtros] [data-autoenviar]").forEach((select) =>
-    select.addEventListener("change", () => select.form.submit())
-  );
-}
-
-/* ---------- Gráficos del dashboard (Chart.js) ---------- */
-function dibujarGraficos() {
-  const nodo = document.getElementById("datos-graficos");
-  if (!nodo || !window.Chart) return;
-  const datos = JSON.parse(nodo.textContent);
-
-  Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
-  Chart.defaults.color = "#64748b";
-
+  Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
   new Chart(document.getElementById("grafico-departamentos"), {
     type: "bar",
     data: {
-      labels: datos.departamentos.etiquetas,
+      labels: Object.keys(porDepartamento),
       datasets: [{
         label: "Trabajadores",
-        data: datos.departamentos.valores,
-        backgroundColor: COLOR_PRIMARIO,
+        data: Object.values(porDepartamento),
+        backgroundColor: COLOR_PRINCIPAL,
         borderRadius: 8,
-        maxBarThickness: 42,
+        maxBarThickness: 48,
       }],
     },
     options: {
       maintainAspectRatio: false,
       plugins: { legend: { display: false } },
       scales: {
-        y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: "#eef2f6" } },
+        y: { beginAtZero: true, ticks: { precision: 0 } },
         x: { grid: { display: false } },
       },
-    },
-  });
-
-  new Chart(document.getElementById("grafico-estados"), {
-    type: "doughnut",
-    data: {
-      labels: datos.estados.etiquetas,
-      datasets: [{
-        data: datos.estados.valores,
-        backgroundColor: ["#15803d", "#1d4ed8", "#d97706", "#94a3b8"],
-        borderWidth: 3,
-        borderColor: "#fff",
-      }],
-    },
-    options: {
-      maintainAspectRatio: false,
-      cutout: "68%",
-      plugins: { legend: { position: "bottom", labels: { usePointStyle: true, padding: 16 } } },
     },
   });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  mostrarMensajesFlash();
+  mostrarMensajes();
   activarConfirmaciones();
-  activarCamposRut();
+  activarCampoRut();
   activarValidacion();
-  activarSugerenciaSueldo();
-  activarVerPassword();
-  activarMenuMovil();
-  activarFiltrosAutomaticos();
-  dibujarGraficos();
+  activarFiltros();
+  dibujarGrafico();
 });

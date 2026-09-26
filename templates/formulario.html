@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% set t = trabajador %}
+{% set editando = t.id is not none %}
+{% block titulo %}{{ 'Editar' if editando else 'Nuevo' }} trabajador{% endblock %}
+
+{# Muestra el error de un campo (si lo hay) debajo del input #}
+{% macro error(campo) %}
+  {% if campo in trabajador.errores %}
+    <span class="error-campo">{{ trabajador.errores[campo] }}</span>
+  {% endif %}
+{% endmacro %}
+
+{% block contenido %}
+<div class="encabezado">
+  <div>
+    <a href="{{ url_for('lista_trabajadores') }}" class="volver"><i class="bi bi-arrow-left"></i> Volver al listado</a>
+    <h1>{{ 'Editar trabajador' if editando else 'Nuevo trabajador' }}</h1>
+  </div>
+</div>
+
+<form method="post" class="tarjeta formulario" data-validar novalidate>
+  <h2>Datos personales</h2>
+  <div class="rejilla">
+    <div class="campo {{ 'invalido' if 'rut' in t.errores }}">
+      <label for="rut">RUT *</label>
+      <input type="text" id="rut" name="rut" maxlength="12" required data-rut
+             value="{{ t.rut if 'rut' in t.errores else t.rut_formateado }}" placeholder="12.345.678-5">
+      {{ error('rut') }}
+    </div>
+    <div class="campo {{ 'invalido' if 'correo' in t.errores }}">
+      <label for="correo">Correo *</label>
+      <input type="email" id="correo" name="correo" maxlength="120" required
+             value="{{ t.correo }}" placeholder="nombre.apellido@empresa.cl">
+      {{ error('correo') }}
+    </div>
+    <div class="campo {{ 'invalido' if 'nombre' in t.errores }}">
+      <label for="nombre">Nombre *</label>
+      <input type="text" id="nombre" name="nombre" minlength="2" maxlength="60" required
+             value="{{ t.nombre }}" placeholder="Camila">
+      {{ error('nombre') }}
+    </div>
+    <div class="campo {{ 'invalido' if 'apellido' in t.errores }}">
+      <label for="apellido">Apellido *</label>
+      <input type="text" id="apellido" name="apellido" minlength="2" maxlength="60" required
+             value="{{ t.apellido }}" placeholder="Rojas Fuentes">
+      {{ error('apellido') }}
+    </div>
+    <div class="campo {{ 'invalido' if 'telefono' in t.errores }}">
+      <label for="telefono">Teléfono</label>
+      <input type="tel" id="telefono" name="telefono" maxlength="15" pattern="\+?[0-9 ]{8,15}"
+             value="{{ t.telefono }}" placeholder="+56 9 1234 5678">
+      {{ error('telefono') }}
+    </div>
+  </div>
+
+  <h2>Datos laborales</h2>
+  <div class="rejilla">
+    <div class="campo {{ 'invalido' if 'departamento' in t.errores }}">
+      <label for="departamento">Departamento *</label>
+      <select id="departamento" name="departamento" required>
+        <option value="">Selecciona…</option>
+        {% for d in Trabajador.DEPARTAMENTOS %}
+          <option {{ 'selected' if t.departamento == d }}>{{ d }}</option>
+        {% endfor %}
+      </select>
+      {{ error('departamento') }}
+    </div>
+    <div class="campo {{ 'invalido' if 'cargo' in t.errores }}">
+      <label for="cargo">Cargo *</label>
+      <select id="cargo" name="cargo" required>
+        <option value="">Selecciona…</option>
+        {% for c in Trabajador.CARGOS %}
+          <option {{ 'selected' if t.cargo == c }}>{{ c }}</option>
+        {% endfor %}
+      </select>
+      {{ error('cargo') }}
+    </div>
+    <div class="campo {{ 'invalido' if 'fecha_ingreso' in t.errores }}">
+      <label for="fecha_ingreso">Fecha de ingreso *</label>
+      <input type="date" id="fecha_ingreso" name="fecha_ingreso" max="{{ hoy }}" required
+             value="{{ t.fecha_ingreso.isoformat() if t.fecha_ingreso }}">
+      {{ error('fecha_ingreso') }}
+    </div>
+    <div class="campo {{ 'invalido' if 'sueldo' in t.errores }}">
+      <label for="sueldo">Sueldo mensual ($) *</label>
+      <input type="number" id="sueldo" name="sueldo" min="1" step="1" required
+             value="{{ t.sueldo if t.sueldo is not none }}" placeholder="850000">
+      {{ error('sueldo') }}
+    </div>
+    <div class="campo {{ 'invalido' if 'estado' in t.errores }}">
+      <label for="estado">Estado *</label>
+      <select id="estado" name="estado" required>
+        {% for valor, texto in Trabajador.ESTADOS.items() %}
+          <option value="{{ valor }}" {{ 'selected' if t.estado == valor }}>{{ texto }}</option>
+        {% endfor %}
+      </select>
+      {{ error('estado') }}
+    </div>
+  </div>
+
+  <div class="botones">
+    <span class="texto-suave">* Campos obligatorios</span>
+    <a href="{{ url_for('lista_trabajadores') }}" class="boton boton-borde">Cancelar</a>
+    <button type="submit" class="boton boton-primario">
+      <i class="bi bi-check2"></i> {{ 'Guardar cambios' if editando else 'Registrar' }}
+    </button>
+  </div>
+</form>
+{% endblock %}

@@ -10,7 +10,7 @@ El informe se entrega aparte (Word o PDF). Esta guía indica **qué va en cada s
 | 4 | **Usuarios del sistema** | Tabla de usuarios y qué necesita cada uno. | PLANIFICACION §3 |
 | 5 | **Requerimientos** | Tabla RF01–RF11, los no funcionales y el alcance (qué incluye y qué no). | PLANIFICACION §4 y §5 |
 | 6 | **Propuesta de solución** | Cómo responde la app a cada problema de la sección 3 (idealmente, una tabla problema → solución) y las pantallas. | PLANIFICACION §2 y §7 |
-| 7 | **Diseño de base de datos** | Tabla `trabajadores` con campos, tipos y reglas; listas fijas y por qué se eligieron; RLS; **captura del Table Editor de Supabase**. | PLANIFICACION §6 y §8 |
+| 7 | **Diseño de base de datos** | Tabla `trabajadores` con campos, tipos y reglas; listas fijas y por qué se eligieron; **captura del Table Editor de Supabase**. | PLANIFICACION §6 y §8 |
 | 8 | **Arquitectura** | Diagrama, rol de HTML, CSS, JS, Flask y Supabase, estructura de carpetas y cómo se aplicó la POO. | PLANIFICACION §9, README |
 | 9 | **Funcionalidades desarrolladas** | Una subsección por funcionalidad (login, dashboard, CRUD, búsqueda, validaciones, alertas), con una captura y una breve explicación de cómo funciona por dentro. | App + capturas |
 | 10 | **Pruebas realizadas** | Tabla de pruebas completa, **incluyendo casos de error**. | PRUEBAS.md |
@@ -27,12 +27,12 @@ El informe se entrega aparte (Word o PDF). Esta guía indica **qué va en cada s
 - [ ] Alerta de éxito (SweetAlert2) al registrar.
 - [ ] Confirmación de eliminación con SweetAlert2.
 - [ ] Formulario de edición.
-- [ ] Supabase: Table Editor con la tabla `trabajadores`, Authentication → Users y la política RLS.
+- [ ] Supabase: Table Editor con la tabla `trabajadores`, y Authentication → Users.
 - [ ] GitHub: página del repositorio (sin `.env` ni `venv`), historial de commits y *pull requests* del equipo.
 - [ ] Vista en celular.
 
 ## Consejos
 
 - Pongan un título y una explicación de una línea bajo cada captura. No basta con pegar la imagen.
-- En "Dificultades", cuenten problemas reales que tuvieron (instalar dependencias, configurar `.env`, errores de RLS, conflictos de Git…) y cómo los solucionaron.
+- En "Dificultades", cuenten problemas reales que tuvieron (instalar dependencias, configurar `.env`, conectar con Supabase, conflictos de Git…) y cómo los solucionaron.
 - Revisen la ortografía y el uso de términos técnicos, porque la rúbrica también los evalúa.

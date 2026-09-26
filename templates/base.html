@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block titulo %}Inicio{% endblock %} · TalentoRH</title>
+  <title>{% block titulo %}{% endblock %} · TalentoRH</title>
   <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,11 +11,37 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
-<body class="{% block clase_body %}{% endblock %}">
-  {% block cuerpo %}{% endblock %}
+<body>
+  {% if session.correo %}
+    {% set seccion = request.endpoint or '' %}
+    <header class="barra">
+      <a class="marca" href="{{ url_for('dashboard') }}">
+        <span class="marca-logo"><i class="bi bi-person-badge"></i></span>
+        <span>Talento<strong>RH</strong></span>
+      </a>
+      <nav class="menu">
+        <a href="{{ url_for('dashboard') }}" class="{{ 'activo' if seccion == 'dashboard' }}">
+          <i class="bi bi-grid-1x2"></i> Dashboard
+        </a>
+        <a href="{{ url_for('lista_trabajadores') }}" class="{{ 'activo' if 'trabajador' in seccion }}">
+          <i class="bi bi-people"></i> Trabajadores
+        </a>
+      </nav>
+      <div class="usuario">
+        <span class="usuario-correo">{{ session.correo }}</span>
+        <a href="{{ url_for('logout') }}" class="boton-icono" title="Cerrar sesión" aria-label="Cerrar sesión">
+          <i class="bi bi-box-arrow-right"></i>
+        </a>
+      </div>
+    </header>
+  {% endif %}
 
-  {# Los mensajes de Flask se entregan a JavaScript, que los muestra con SweetAlert2 #}
-  <script id="mensajes-flash" type="application/json">{{ get_flashed_messages(with_categories=true) | tojson }}</script>
+  <main class="{% block clase_main %}contenido{% endblock %}">
+    {% block contenido %}{% endblock %}
+  </main>
+
+  {# Los mensajes de Flask pasan a JavaScript, que los muestra con SweetAlert2 #}
+  <script id="mensajes" type="application/json">{{ get_flashed_messages(with_categories=true) | tojson }}</script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   {% block scripts %}{% endblock %}
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>

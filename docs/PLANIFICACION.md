@@ -2,7 +2,7 @@
 
 > Evaluación II y III · Programación Orientada a Objeto · 4º Medio H
 > Contexto: **B. Gestión de Recursos Humanos** · Entrega: **martes 29 de septiembre de 2026**
-> Estado del plan: **borrador para aprobar**. El código se escribe desde cero siguiendo este documento.
+> Estado del plan: **aprobado el 25-09-2026**. El código se escribió desde cero siguiendo este documento.
 
 ---
 
@@ -68,7 +68,7 @@ Ambos usan la misma cuenta y tienen los mismos permisos. Las cuentas se crean a 
 
 **No funcionales:**
 - Las claves van en `.env` y nunca se suben a GitHub.
-- La base de datos tiene RLS: sin sesión no se accede a los datos.
+- Dentro del sistema, todas las páginas exigen haber iniciado sesión. La base de datos no tiene protección adicional porque es un proyecto de prueba con datos ficticios.
 - La interfaz se adapta al celular.
 - Se usan solo datos ficticios.
 
@@ -91,7 +91,7 @@ Hay **una sola tabla**: `trabajadores`.
 | `estado` | `varchar(20)` | Sí | `activo`, `vacaciones`, `licencia` o `desvinculado`. Por defecto `activo` |
 | `created_at` | `timestamptz` | auto | Fecha de creación del registro |
 
-**Seguridad:** RLS activado, con una política que solo permite leer y escribir al rol `authenticated`.
+**Acceso:** solo la aplicación Flask usa la tabla, con la clave pública guardada en `.env`. No se usan políticas RLS porque es un proyecto de prueba con datos ficticios.
 
 **Datos de prueba:** unos 12 trabajadores ficticios cargados con el mismo script SQL.
 
@@ -157,7 +157,7 @@ sistema_rrhh/
 ├── .gitignore           # .env, venv/, __pycache__/
 ├── README.md
 ├── supabase/
-│   └── esquema.sql      # Tabla, RLS y datos ficticios
+│   └── esquema.sql      # Tabla, permisos y datos ficticios
 ├── templates/
 │   ├── base.html        # Estructura común + menú
 │   ├── login.html
@@ -176,7 +176,7 @@ sistema_rrhh/
 | **CSS** | Diseño propio: colores, tarjetas, tabla, formulario y versión para celular. |
 | **JavaScript** | SweetAlert2 (mensajes y confirmación al eliminar), validación del RUT y gráfico del dashboard (Chart.js). |
 | **Flask** | Rutas, sesión del usuario y validación en el servidor. |
-| **Supabase** | Login (Auth) y base de datos PostgreSQL con RLS. |
+| **Supabase** | Login (Auth) y base de datos PostgreSQL. |
 
 ### Programación Orientada a Objetos
 
@@ -196,8 +196,8 @@ Conceptos que se pueden mostrar en la presentación:
 
 | # | Responsable de | Archivos |
 |---|---|---|
-| 1 | Supabase: proyecto, tabla, RLS y datos ficticios | `supabase/esquema.sql`, `repositorio.py` |
-| 2 | Login, sesión y seguridad | Rutas de login/logout en `app.py`, `.env.example`, `.gitignore` |
+| 1 | Supabase: proyecto, tabla y datos ficticios | `supabase/esquema.sql`, `repositorio.py` |
+| 2 | Login y protección de páginas | Rutas de login/logout en `app.py`, `.env.example`, `.gitignore` |
 | 3 | Clase Trabajador y validaciones | `trabajador.py` |
 | 4 | CRUD, búsqueda y filtros | Rutas de trabajadores en `app.py`, `trabajadores.html`, `formulario.html` |
 | 5 | Dashboard y JavaScript | `dashboard.html`, `static/js/app.js` |
