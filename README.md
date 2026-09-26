@@ -34,7 +34,7 @@ sistema_rrhh/
 │   ├── css/styles.css
 │   ├── js/app.js
 │   └── img/favicon.svg
-└── docs/                # Planificación, pruebas y guía del informe
+└── docs/                # Planificación, pruebas y guía del informe 
 ```
 
 ## Instalación
