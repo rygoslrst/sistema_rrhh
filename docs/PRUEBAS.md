@@ -2,7 +2,7 @@
 
 **Cómo usarlo:** ejecuten cada prueba con la app conectada a Supabase. Anoten el resultado obtenido, marquen ✅ o ❌ y guarden una captura en `docs/evidencias/` con el ID como nombre (ej.: `P05.png`). Si algo falla, anoten qué pasó y cómo lo corrigieron: eso también suma en el informe.
 
-> **Primera ejecución: 26-09-2026**, con Supabase real (proyecto `talentorh`) y el usuario de prueba `rrhh@losandes-demo.cl`. Falta completar la columna *Responsable*, sacar las capturas y hacer la P22 después de subir a GitHub.
+> **Primera ejecución: 26-09-2026**, con Supabase real (proyecto `talentorh`) y el usuario de prueba `rrhh@losandes-demo.cl`. Falta completar la columna *Responsable* y sacar las capturas.
 
 | ID | RF | Acción | Resultado esperado | Resultado obtenido | ✅/❌ | Responsable |
 |---|---|---|---|---|---|---|
@@ -27,4 +27,4 @@
 | P19 | RF08 | Eliminar y confirmar | Desaparece del listado y de Supabase | "Trabajador eliminado."; vuelve a 12 en el listado y en Supabase | ✅ | |
 | P20 | RF02 | Cerrar sesión y volver a `/trabajadores` | Pide iniciar sesión de nuevo | "Sesión cerrada."; al abrir `/trabajadores` pide iniciar sesión | ✅ | |
 | P21 | — | Abrir la app en el celular (o en modo responsive) | Se ve ordenada y sin desplazamiento horizontal | Con 375 px de ancho: sin desplazamiento horizontal, menú en dos filas, formulario en una columna | ✅ | |
-| P22 | Seguridad | Revisar el repositorio en GitHub | No hay `.env` ni `venv/`; `.env.example` no tiene claves | | | |
+| P22 | Seguridad | Revisar el repositorio en GitHub | No hay `.env` ni `venv/`; `.env.example` no tiene claves | Solo están los archivos del proyecto; `.env`, `venv/` y `__pycache__/` no se subieron; `.env.example` tiene las variables vacías | ✅ | |
