@@ -37,11 +37,10 @@ sistema_rrhh/
 │   └── esquema.sql      # Tablas, permisos y datos ficticios
 ├── templates/           # base, login, dashboard, trabajadores, ficha, formulario,
 │                        # solicitudes, mi_panel, solicitud_form, directorio, contacto
-├── static/
-│   ├── css/styles.css
-│   ├── js/app.js
-│   └── img/favicon.svg
-└── docs/                # Planificación, pruebas y guía del informe 
+└── static/
+    ├── css/styles.css
+    ├── js/app.js
+    └── img/favicon.svg
 ```
 
 ## Instalación
@@ -107,13 +106,6 @@ Abrir <http://127.0.0.1:5000> e ingresar con una de las cuentas creadas en Supab
 - Los formularios validan los datos antes de guardarlos y se pide confirmación antes de eliminar, aprobar o rechazar.
 - Las claves solo están en `.env`. En GitHub se sube únicamente `.env.example`.
 - Como es un proyecto de prueba con datos ficticios, la base de datos no tiene protección adicional (sin políticas RLS).
-
-## Documentación
-
-- [**Cómo probar el sistema (guía para el equipo)**](docs/COMO_PROBAR.md)
-- [Planificación del proyecto](docs/PLANIFICACION.md)
-- [Plan de pruebas](docs/PRUEBAS.md)
-- [Guía del informe](docs/GUIA_INFORME.md)
 
 ## Equipo
 
