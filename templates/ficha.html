@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block titulo %}{{ t.nombre_completo }}{% endblock %}
+
+{% block contenido %}
+<div class="encabezado">
+  <div>
+    <a href="{{ url_for('lista_trabajadores') }}" class="volver"><i class="bi bi-arrow-left"></i> Volver al listado</a>
+    <h1>Ficha del trabajador</h1>
+  </div>
+</div>
+
+{# Cabecera: quién es, qué hace y en qué estado está #}
+<section class="tarjeta ficha-cabecera">
+  <span class="avatar avatar-grande">{{ t.iniciales }}</span>
+  <div class="ficha-titulo">
+    <h2>{{ t.nombre_completo }}</h2>
+    <p class="texto-suave">{{ t.cargo }} · {{ t.departamento }}</p>
+    <span class="estado estado-{{ t.estado }}">{{ t.estado_texto }}</span>
+  </div>
+  <div class="ficha-acciones">
+    <a href="{{ url_for('editar_trabajador', id=t.id) }}" class="boton boton-secundario">
+      <i class="bi bi-pencil"></i> {{ 'Editar' if es_admin else 'Corregir datos' }}
+    </a>
+    {% if es_admin %}
+    <form method="post" action="{{ url_for('eliminar_trabajador', id=t.id) }}"
+          data-confirmar="Se eliminará a {{ t.nombre_completo }}. Esta acción no se puede deshacer."
+          data-titulo="¿Eliminar trabajador?" data-boton="Sí, eliminar" data-peligro>
+      <button type="submit" class="boton boton-borde boton-peligro">
+        <i class="bi bi-trash3"></i> Eliminar
+      </button>
+    </form>
+    {% endif %}
+  </div>
+</section>
+
+<div class="dos-columnas dos-columnas-iguales">
+  <section class="tarjeta">
+    <h2><i class="bi bi-person-vcard"></i> Datos personales</h2>
+    <dl class="datos">
+      <dt>Nombre</dt>
+      <dd>{{ t.nombre }}</dd>
+      <dt>Apellido</dt>
+      <dd>{{ t.apellido }}</dd>
+      <dt>RUT</dt>
+      <dd>{{ t.rut_formateado }}</dd>
+      <dt>Correo</dt>
+      <dd><a href="mailto:{{ t.correo }}" class="enlace">{{ t.correo }}</a></dd>
+      <dt>Teléfono</dt>
+      <dd>{{ t.telefono or 'No registrado' }}</dd>
+    </dl>
+  </section>
+
+  <section class="tarjeta">
+    <h2><i class="bi bi-building"></i> Datos laborales</h2>
+    <dl class="datos">
+      <dt>Departamento</dt>
+      <dd>{{ t.departamento }}</dd>
+      <dt>Cargo</dt>
+      <dd>{{ t.cargo }}</dd>
+      <dt>Fecha de ingreso</dt>
+      <dd>{{ t.fecha_ingreso | fecha }}</dd>
+      <dt>Antigüedad</dt>
+      <dd>
+        {% if t.antiguedad == 0 %}Menos de 1 año
+        {% else %}{{ t.antiguedad }} {{ 'año' if t.antiguedad == 1 else 'años' }}{% endif %}
+      </dd>
+      <dt>Sueldo mensual</dt>
+      <dd>{{ t.sueldo | pesos }}</dd>
+      <dt>Estado</dt>
+      <dd>{{ t.estado_texto }}</dd>
+      <dt>Rol en el sistema</dt>
+      <dd>{{ t.rol_texto }}</dd>
+    </dl>
+  </section>
+</div>
+{% endblock %}

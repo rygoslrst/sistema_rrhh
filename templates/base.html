@@ -12,23 +12,34 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-  {% if session.correo %}
+  {% if session.trabajador_id %}
     {% set seccion = request.endpoint or '' %}
     <header class="barra">
-      <a class="marca" href="{{ url_for('dashboard') }}">
+      <a class="marca" href="{{ url_for('inicio') }}">
         <span class="marca-logo"><i class="bi bi-person-badge"></i></span>
         <span>Talento<strong>RH</strong></span>
       </a>
       <nav class="menu">
-        <a href="{{ url_for('dashboard') }}" class="{{ 'activo' if seccion == 'dashboard' }}">
-          <i class="bi bi-grid-1x2"></i> Dashboard
-        </a>
+        {% if es_rrhh %}
+          <a href="{{ url_for('dashboard') }}" class="{{ 'activo' if seccion == 'dashboard' }}">
+            <i class="bi bi-grid-1x2"></i> Dashboard
+          </a>
+        {% endif %}
+        {# Todos ven "Trabajadores": RR.HH. con todos los datos, el empleado como directorio de contacto #}
         <a href="{{ url_for('lista_trabajadores') }}" class="{{ 'activo' if 'trabajador' in seccion }}">
           <i class="bi bi-people"></i> Trabajadores
         </a>
+        {% if es_rrhh %}
+          <a href="{{ url_for('lista_solicitudes') }}" class="{{ 'activo' if 'solicitud' in seccion and seccion != 'nueva_solicitud' }}">
+            <i class="bi bi-envelope-paper"></i> Solicitudes
+          </a>
+        {% endif %}
+        <a href="{{ url_for('mi_panel') }}" class="{{ 'activo' if seccion in ('mi_panel', 'nueva_solicitud') }}">
+          <i class="bi bi-person-circle"></i> Mi panel
+        </a>
       </nav>
       <div class="usuario">
-        <span class="usuario-correo">{{ session.correo }}</span>
+        <span class="usuario-correo">{{ session.nombre }} · {{ ROLES.get(session.rol, '') }}</span>
         <a href="{{ url_for('logout') }}" class="boton-icono" title="Cerrar sesión" aria-label="Cerrar sesión">
           <i class="bi bi-box-arrow-right"></i>
         </a>

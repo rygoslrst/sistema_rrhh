@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block titulo %}Solicitudes{% endblock %}
+
+{% block contenido %}
+<div class="encabezado">
+  <div>
+    <h1>Solicitudes</h1>
+    <p class="texto-suave">
+      Vacaciones, permisos y licencias pedidos por los trabajadores{% if not es_admin %} · solo el administrador puede aprobarlas o rechazarlas{% endif %}
+    </p>
+  </div>
+</div>
+
+{# Pestañas para filtrar por estado ("" = todas) #}
+<nav class="pestanas">
+  {% for valor, texto in [('pendiente', 'Pendientes'), ('aprobada', 'Aprobadas'), ('rechazada', 'Rechazadas'), ('', 'Todas')] %}
+    <a href="{{ url_for('lista_solicitudes', estado=valor or 'todas') }}"
+       class="{{ 'activa' if estado == valor }}">{{ texto }}</a>
+  {% endfor %}
+</nav>
+
+<section class="tarjeta tarjeta-tabla">
+  {% if solicitudes %}
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Trabajador</th>
+            <th>Tipo</th>
+            <th>Período</th>
+            <th>Motivo</th>
+            <th>Pedida el</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in solicitudes %}
+            <tr>
+              <td>
+                <a href="{{ url_for('ficha_trabajador', id=s.trabajador_id) }}" class="enlace-nombre">{{ s.trabajador_nombre }}</a>
+              </td>
+              <td>{{ s.tipo_texto }}</td>
+              <td class="sin-salto">
+                {{ s.fecha_inicio | fecha }} al {{ s.fecha_fin | fecha }}
+                <small class="texto-suave">{{ s.dias }} {{ 'día' if s.dias == 1 else 'días' }}</small>
+              </td>
+              <td class="texto-suave">{{ s.motivo or '—' }}</td>
+              <td class="sin-salto">{{ s.fecha_solicitud | fecha }}</td>
+              <td><span class="estado estado-{{ s.estado }}">{{ s.estado_texto }}</span></td>
+              <td class="acciones">
+                {% if s.esta_pendiente and es_admin %}
+                  <form method="post" action="{{ url_for('responder_solicitud', id=s.id) }}"
+                        data-confirmar="Se aprobará la solicitud de {{ s.trabajador_nombre }} ({{ s.tipo_texto | lower }}, {{ s.dias }} {{ 'día' if s.dias == 1 else 'días' }})."
+                        data-titulo="¿Aprobar solicitud?" data-boton="Sí, aprobar">
+                    <input type="hidden" name="estado" value="aprobada">
+                    <button type="submit" class="boton-icono exito" title="Aprobar" aria-label="Aprobar">
+                      <i class="bi bi-check-lg"></i>
+                    </button>
+                  </form>
+                  <form method="post" action="{{ url_for('responder_solicitud', id=s.id) }}"
+                        data-confirmar="Se rechazará la solicitud de {{ s.trabajador_nombre }}."
+                        data-titulo="¿Rechazar solicitud?" data-boton="Sí, rechazar" data-peligro>
+                    <input type="hidden" name="estado" value="rechazada">
+                    <button type="submit" class="boton-icono peligro" title="Rechazar" aria-label="Rechazar">
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+                  </form>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="vacio"><i class="bi bi-inbox"></i> No hay solicitudes en esta categoría.</p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block titulo %}Trabajadores{% endblock %}
+
+{# Lo que ve un empleado en "Trabajadores": solo datos de contacto #}
+{% block contenido %}
+<div class="encabezado">
+  <div>
+    <h1>Trabajadores</h1>
+    <p class="texto-suave">Directorio de contacto de la empresa · {{ trabajadores | length }} {{ 'persona' if trabajadores | length == 1 else 'personas' }}</p>
+  </div>
+</div>
+
+<form method="get" class="tarjeta filtros">
+  <input type="search" name="texto" value="{{ texto }}" placeholder="Buscar por nombre o apellido…" aria-label="Buscar">
+  <button type="submit" class="boton boton-secundario"><i class="bi bi-search"></i> Buscar</button>
+  {% if texto %}
+    <a href="{{ url_for('lista_trabajadores') }}" class="boton boton-borde">Limpiar</a>
+  {% endif %}
+</form>
+
+<section class="tarjeta tarjeta-tabla">
+  {% if trabajadores %}
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr><th>Nombre</th><th>Correo</th><th>Teléfono</th></tr>
+        </thead>
+        <tbody>
+          {% for t in trabajadores %}
+            <tr>
+              <td>
+                <div class="persona">
+                  <span class="avatar">{{ t.iniciales }}</span>
+                  <a href="{{ url_for('ficha_trabajador', id=t.id) }}" class="enlace-nombre">{{ t.nombre_completo }}</a>
+                </div>
+              </td>
+              <td><a href="mailto:{{ t.correo }}" class="enlace">{{ t.correo }}</a></td>
+              <td class="sin-salto">{{ t.telefono or '—' }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="vacio"><i class="bi bi-search"></i> No se encontraron trabajadores.</p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% set t = trabajador %}
 {% set editando = t.id is not none %}
-{% block titulo %}{{ 'Editar' if editando else 'Nuevo' }} trabajador{% endblock %}
+{% block titulo %}{{ 'Nuevo trabajador' if not editando else ('Editar trabajador' if es_admin else 'Corregir datos') }}{% endblock %}
 
 {# Muestra el error de un campo (si lo hay) debajo del input #}
 {% macro error(campo) %}
@@ -10,27 +10,49 @@
   {% endif %}
 {% endmacro %}
 
+{# Nota para los datos que solo el administrador puede cambiar (el asistente los ve bloqueados) #}
+{% macro candado() %}
+  {% if not es_admin %}
+    <small class="ayuda"><i class="bi bi-lock"></i> Solo el administrador puede cambiar este dato.</small>
+  {% endif %}
+{% endmacro %}
+
 {% block contenido %}
 <div class="encabezado">
   <div>
     <a href="{{ url_for('lista_trabajadores') }}" class="volver"><i class="bi bi-arrow-left"></i> Volver al listado</a>
-    <h1>{{ 'Editar trabajador' if editando else 'Nuevo trabajador' }}</h1>
+    <h1>
+      {% if not editando %}Nuevo trabajador
+      {% elif es_admin %}Editar trabajador
+      {% else %}Corregir datos del trabajador{% endif %}
+    </h1>
   </div>
 </div>
+
+{% if not es_admin %}
+  <p class="aviso"><i class="bi bi-info-circle"></i>
+    <span>Como asistente de RR.HH. puedes corregir <strong>nombre, apellido, correo y teléfono</strong>.
+    Los demás datos solo los cambia el administrador.</span>
+  </p>
+{% endif %}
 
 <form method="post" class="tarjeta formulario" data-validar novalidate>
   <h2>Datos personales</h2>
   <div class="rejilla">
     <div class="campo {{ 'invalido' if 'rut' in t.errores }}">
       <label for="rut">RUT *</label>
-      <input type="text" id="rut" name="rut" maxlength="12" required data-rut
+      <input type="text" id="rut" name="rut" maxlength="12" required data-rut {{ 'disabled' if not es_admin }}
              value="{{ t.rut if 'rut' in t.errores else t.rut_formateado }}" placeholder="12.345.678-5">
+      {{ candado() }}
       {{ error('rut') }}
     </div>
     <div class="campo {{ 'invalido' if 'correo' in t.errores }}">
       <label for="correo">Correo *</label>
       <input type="email" id="correo" name="correo" maxlength="120" required
              value="{{ t.correo }}" placeholder="nombre.apellido@empresa.cl">
+      {% if editando %}
+        <small class="ayuda">Si cambias el correo, también hay que cambiarlo en su cuenta de Supabase para que pueda entrar.</small>
+      {% endif %}
       {{ error('correo') }}
     </div>
     <div class="campo {{ 'invalido' if 'nombre' in t.errores }}">
@@ -57,44 +79,66 @@
   <div class="rejilla">
     <div class="campo {{ 'invalido' if 'departamento' in t.errores }}">
       <label for="departamento">Departamento *</label>
-      <select id="departamento" name="departamento" required>
+      <select id="departamento" name="departamento" required {{ 'disabled' if not es_admin }}>
         <option value="">Selecciona…</option>
         {% for d in Trabajador.DEPARTAMENTOS %}
           <option {{ 'selected' if t.departamento == d }}>{{ d }}</option>
         {% endfor %}
       </select>
+      {{ candado() }}
       {{ error('departamento') }}
     </div>
     <div class="campo {{ 'invalido' if 'cargo' in t.errores }}">
       <label for="cargo">Cargo *</label>
-      <select id="cargo" name="cargo" required>
+      <select id="cargo" name="cargo" required {{ 'disabled' if not es_admin }}>
         <option value="">Selecciona…</option>
         {% for c in Trabajador.CARGOS %}
           <option {{ 'selected' if t.cargo == c }}>{{ c }}</option>
         {% endfor %}
       </select>
+      {{ candado() }}
       {{ error('cargo') }}
     </div>
     <div class="campo {{ 'invalido' if 'fecha_ingreso' in t.errores }}">
       <label for="fecha_ingreso">Fecha de ingreso *</label>
-      <input type="date" id="fecha_ingreso" name="fecha_ingreso" max="{{ hoy }}" required
-             value="{{ t.fecha_ingreso.isoformat() if t.fecha_ingreso }}">
+      {% if editando %}
+        <input type="date" id="fecha_ingreso" name="fecha_ingreso" max="{{ hoy }}" required
+               value="{{ t.fecha_ingreso.isoformat() if t.fecha_ingreso }}" {{ 'disabled' if not es_admin }}>
+        {{ candado() }}
+      {% else %}
+        {# Al registrar, la fecha es siempre la de hoy (el servidor también la fija) #}
+        <input type="date" id="fecha_ingreso" name="fecha_ingreso" value="{{ hoy }}" readonly>
+        <small class="ayuda">Se registra con la fecha de hoy.</small>
+      {% endif %}
       {{ error('fecha_ingreso') }}
     </div>
     <div class="campo {{ 'invalido' if 'sueldo' in t.errores }}">
       <label for="sueldo">Sueldo mensual ($) *</label>
-      <input type="number" id="sueldo" name="sueldo" min="1" step="1" required
+      <input type="number" id="sueldo" name="sueldo" min="1" step="1" required {{ 'disabled' if not es_admin }}
              value="{{ t.sueldo if t.sueldo is not none }}" placeholder="850000">
+      {{ candado() }}
       {{ error('sueldo') }}
     </div>
     <div class="campo {{ 'invalido' if 'estado' in t.errores }}">
       <label for="estado">Estado *</label>
-      <select id="estado" name="estado" required>
+      <select id="estado" name="estado" required {{ 'disabled' if not es_admin }}>
         {% for valor, texto in Trabajador.ESTADOS.items() %}
           <option value="{{ valor }}" {{ 'selected' if t.estado == valor }}>{{ texto }}</option>
         {% endfor %}
       </select>
+      {{ candado() }}
       {{ error('estado') }}
+    </div>
+    <div class="campo {{ 'invalido' if 'rol' in t.errores }}">
+      <label for="rol">Rol en el sistema *</label>
+      <select id="rol" name="rol" required {{ 'disabled' if not es_admin }}>
+        {% for valor, texto in Trabajador.ROLES.items() %}
+          <option value="{{ valor }}" {{ 'selected' if t.rol == valor }}>{{ texto }}</option>
+        {% endfor %}
+      </select>
+      <small class="ayuda">Para entrar al sistema, su cuenta en Supabase debe usar el mismo correo.</small>
+      {{ candado() }}
+      {{ error('rol') }}
     </div>
   </div>
 

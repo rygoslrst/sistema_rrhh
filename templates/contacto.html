@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block titulo %}{{ t.nombre_completo }}{% endblock %}
+
+{# Ficha que ve un empleado: solo nombre, correo y teléfono #}
+{% block contenido %}
+<div class="encabezado">
+  <div>
+    <a href="{{ url_for('lista_trabajadores') }}" class="volver"><i class="bi bi-arrow-left"></i> Volver al directorio</a>
+    <h1>Contacto</h1>
+  </div>
+</div>
+
+<section class="tarjeta ficha-cabecera tarjeta-contacto">
+  <span class="avatar avatar-grande">{{ t.iniciales }}</span>
+  <div class="ficha-titulo">
+    <h2>{{ t.nombre_completo }}</h2>
+  </div>
+  <dl class="datos datos-compactos">
+    <dt><i class="bi bi-envelope"></i> Correo</dt>
+    <dd><a href="mailto:{{ t.correo }}" class="enlace">{{ t.correo }}</a></dd>
+    <dt><i class="bi bi-telephone"></i> Teléfono</dt>
+    <dd>{{ t.telefono or 'No registrado' }}</dd>
+  </dl>
+</section>
+{% endblock %}

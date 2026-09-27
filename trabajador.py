@@ -14,10 +14,22 @@ class Trabajador:
         "licencia": "Licencia",
         "desvinculado": "Desvinculado",
     }
+    # Rol dentro del sistema:
+    #   admin     -> ve y cambia todo
+    #   asistente -> ve todo, pero solo corrige los DATOS_BASICOS
+    #   empleado  -> solo ve "Mi panel"
+    ROLES = {
+        "empleado": "Empleado",
+        "asistente": "Asistente de RR.HH.",
+        "admin": "Administrador",
+    }
+    # Datos que un asistente puede corregir si se ingresaron mal.
+    # Los demás (RUT, sueldo, cargo, departamento, estado, rol, fecha) afectan a la empresa.
+    DATOS_BASICOS = ("nombre", "apellido", "correo", "telefono")
 
     def __init__(self, rut="", nombre="", apellido="", correo="", telefono="",
                  departamento="", cargo="", fecha_ingreso=None, sueldo=None,
-                 estado="activo", id=None):
+                 estado="activo", rol="empleado", id=None):
         self.id = id
         self.rut = rut
         self.nombre = nombre
@@ -29,6 +41,7 @@ class Trabajador:
         self.fecha_ingreso = fecha_ingreso  # objeto date
         self.sueldo = sueldo                # número entero (pesos)
         self.estado = estado
+        self.rol = rol
         self.errores = {}                   # campo -> mensaje de error
 
     # ---------- Crear un Trabajador a partir de datos ----------
@@ -47,6 +60,7 @@ class Trabajador:
             fecha_ingreso=cls._a_fecha(datos.get("fecha_ingreso")),
             sueldo=cls._a_entero(datos.get("sueldo")),
             estado=cls._texto(datos.get("estado")) or "activo",
+            rol=cls._texto(datos.get("rol")) or "empleado",
         )
 
     def a_dict(self):
@@ -62,6 +76,7 @@ class Trabajador:
             "fecha_ingreso": self.fecha_ingreso.isoformat(),
             "sueldo": self.sueldo,
             "estado": self.estado,
+            "rol": self.rol,
         }
 
     # ---------- Propiedades calculadas ----------
@@ -76,6 +91,14 @@ class Trabajador:
     @property
     def estado_texto(self):
         return self.ESTADOS.get(self.estado, self.estado)
+
+    @property
+    def rol_texto(self):
+        return self.ROLES.get(self.rol, self.rol)
+
+    @property
+    def es_admin(self):
+        return self.rol == "admin"
 
     @property
     def rut_formateado(self):
@@ -128,6 +151,8 @@ class Trabajador:
             self.errores["cargo"] = "Selecciona una opción válida."
         if self.estado not in self.ESTADOS:
             self.errores["estado"] = "Selecciona una opción válida."
+        if self.rol not in self.ROLES:
+            self.errores["rol"] = "Selecciona una opción válida."
 
         if not self.fecha_ingreso:
             self.errores["fecha_ingreso"] = obligatorio

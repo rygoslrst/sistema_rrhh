@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block titulo %}Mi panel{% endblock %}
+
+{% block contenido %}
+<div class="encabezado">
+  <div>
+    <h1>Hola, {{ session.nombre }}</h1>
+    <p class="texto-suave">Tus datos y el estado de tus solicitudes</p>
+  </div>
+  <a href="{{ url_for('nueva_solicitud') }}" class="boton boton-primario">
+    <i class="bi bi-plus-lg"></i> Nueva solicitud
+  </a>
+</div>
+
+{% if t %}
+  <section class="tarjeta ficha-cabecera">
+    <span class="avatar avatar-grande">{{ t.iniciales }}</span>
+    <div class="ficha-titulo">
+      <h2>{{ t.nombre_completo }}</h2>
+      <p class="texto-suave">{{ t.cargo }} · {{ t.departamento }}</p>
+      <span class="estado estado-{{ t.estado }}">{{ t.estado_texto }}</span>
+    </div>
+    <dl class="datos datos-compactos">
+      <dt>Fecha de ingreso</dt>
+      <dd>{{ t.fecha_ingreso | fecha }}</dd>
+      <dt>Antigüedad</dt>
+      <dd>{% if t.antiguedad == 0 %}Menos de 1 año{% else %}{{ t.antiguedad }} {{ 'año' if t.antiguedad == 1 else 'años' }}{% endif %}</dd>
+      <dt>Correo</dt>
+      <dd>{{ t.correo }}</dd>
+    </dl>
+  </section>
+{% endif %}
+
+<section class="tarjeta tarjeta-tabla">
+  <h2 class="titulo-tabla"><i class="bi bi-envelope-paper"></i> Mis solicitudes</h2>
+  {% if solicitudes %}
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr><th>Tipo</th><th>Período</th><th>Motivo</th><th>Pedida el</th><th>Estado</th></tr>
+        </thead>
+        <tbody>
+          {% for s in solicitudes %}
+            <tr>
+              <td>{{ s.tipo_texto }}</td>
+              <td class="sin-salto">
+                {{ s.fecha_inicio | fecha }} al {{ s.fecha_fin | fecha }}
+                <small class="texto-suave">{{ s.dias }} {{ 'día' if s.dias == 1 else 'días' }}</small>
+              </td>
+              <td class="texto-suave">{{ s.motivo or '—' }}</td>
+              <td class="sin-salto">{{ s.fecha_solicitud | fecha }}</td>
+              <td><span class="estado estado-{{ s.estado }}">{{ s.estado_texto }}</span></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="vacio">Aún no has hecho solicitudes. Usa el botón <strong>Nueva solicitud</strong> para pedir vacaciones, un permiso o una licencia.</p>
+  {% endif %}
+</section>
+{% endblock %}

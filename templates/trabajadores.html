@@ -7,9 +7,11 @@
     <h1>Trabajadores</h1>
     <p class="texto-suave">{{ trabajadores | length }} {{ 'resultado' if trabajadores | length == 1 else 'resultados' }}</p>
   </div>
-  <a href="{{ url_for('nuevo_trabajador') }}" class="boton boton-primario">
-    <i class="bi bi-person-plus"></i> Nuevo trabajador
-  </a>
+  {% if es_admin %}
+    <a href="{{ url_for('nuevo_trabajador') }}" class="boton boton-primario">
+      <i class="bi bi-person-plus"></i> Nuevo trabajador
+    </a>
+  {% endif %}
 </div>
 
 <form method="get" class="tarjeta filtros">
@@ -55,7 +57,7 @@
                 <div class="persona">
                   <span class="avatar">{{ t.iniciales }}</span>
                   <div>
-                    <strong>{{ t.nombre_completo }}</strong>
+                    <a href="{{ url_for('ficha_trabajador', id=t.id) }}" class="enlace-nombre">{{ t.nombre_completo }}</a>
                     <small class="texto-suave">{{ t.correo }}</small>
                   </div>
                 </div>
@@ -69,15 +71,22 @@
               <td class="derecha sin-salto">{{ t.sueldo | pesos }}</td>
               <td><span class="estado estado-{{ t.estado }}">{{ t.estado_texto }}</span></td>
               <td class="acciones">
-                <a href="{{ url_for('editar_trabajador', id=t.id) }}" class="boton-icono" title="Editar" aria-label="Editar">
+                <a href="{{ url_for('ficha_trabajador', id=t.id) }}" class="boton-icono" title="Ver ficha" aria-label="Ver ficha">
+                  <i class="bi bi-eye"></i>
+                </a>
+                <a href="{{ url_for('editar_trabajador', id=t.id) }}" class="boton-icono"
+                   title="{{ 'Editar' if es_admin else 'Corregir datos' }}" aria-label="Editar">
                   <i class="bi bi-pencil"></i>
                 </a>
+                {% if es_admin %}
                 <form method="post" action="{{ url_for('eliminar_trabajador', id=t.id) }}"
-                      data-confirmar="Se eliminará a {{ t.nombre_completo }}. Esta acción no se puede deshacer.">
+                      data-confirmar="Se eliminará a {{ t.nombre_completo }}. Esta acción no se puede deshacer."
+                      data-titulo="¿Eliminar trabajador?" data-boton="Sí, eliminar" data-peligro>
                   <button type="submit" class="boton-icono peligro" title="Eliminar" aria-label="Eliminar">
                     <i class="bi bi-trash3"></i>
                   </button>
                 </form>
+                {% endif %}
               </td>
             </tr>
           {% endfor %}

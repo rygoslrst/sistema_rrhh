@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block titulo %}Nueva solicitud{% endblock %}
+
+{# Muestra el error de un campo (si lo hay) debajo del input #}
+{% macro error(campo) %}
+  {% if campo in s.errores %}
+    <span class="error-campo">{{ s.errores[campo] }}</span>
+  {% endif %}
+{% endmacro %}
+
+{% block contenido %}
+<div class="encabezado">
+  <div>
+    <a href="{{ url_for('mi_panel') }}" class="volver"><i class="bi bi-arrow-left"></i> Volver a mi panel</a>
+    <h1>Nueva solicitud</h1>
+  </div>
+</div>
+
+<form method="post" class="tarjeta formulario formulario-angosto" data-validar novalidate>
+  <div class="campo {{ 'invalido' if 'tipo' in s.errores }}">
+    <label for="tipo">Tipo de solicitud *</label>
+    <select id="tipo" name="tipo" required>
+      <option value="">Selecciona…</option>
+      {% for valor, texto in Solicitud.TIPOS.items() %}
+        <option value="{{ valor }}" {{ 'selected' if s.tipo == valor }}>{{ texto }}</option>
+      {% endfor %}
+    </select>
+    {{ error('tipo') }}
+  </div>
+
+  <div class="rejilla">
+    <div class="campo {{ 'invalido' if 'fecha_inicio' in s.errores }}">
+      <label for="fecha_inicio">Desde *</label>
+      <input type="date" id="fecha_inicio" name="fecha_inicio" required
+             value="{{ s.fecha_inicio.isoformat() if s.fecha_inicio }}">
+      {{ error('fecha_inicio') }}
+    </div>
+    <div class="campo {{ 'invalido' if 'fecha_fin' in s.errores }}">
+      <label for="fecha_fin">Hasta *</label>
+      <input type="date" id="fecha_fin" name="fecha_fin" required
+             value="{{ s.fecha_fin.isoformat() if s.fecha_fin }}">
+      {{ error('fecha_fin') }}
+    </div>
+  </div>
+
+  <div class="campo {{ 'invalido' if 'motivo' in s.errores }}">
+    <label for="motivo">Motivo</label>
+    <textarea id="motivo" name="motivo" rows="3" maxlength="255"
+              placeholder="Ej: viaje familiar, trámite personal…">{{ s.motivo }}</textarea>
+    {{ error('motivo') }}
+  </div>
+
+  <div class="botones">
+    <span class="texto-suave">La solicitud quedará <strong>pendiente</strong> hasta que el administrador la responda.</span>
+    <a href="{{ url_for('mi_panel') }}" class="boton boton-borde">Cancelar</a>
+    <button type="submit" class="boton boton-primario"><i class="bi bi-send"></i> Enviar solicitud</button>
+  </div>
+</form>
+{% endblock %}

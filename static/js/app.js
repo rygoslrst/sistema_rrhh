@@ -1,7 +1,7 @@
 /* ==========================================================================
    TalentoRH · JavaScript
    1. Mensajes de Flask con SweetAlert2
-   2. Confirmación antes de eliminar
+   2. Confirmación antes de eliminar, aprobar o rechazar
    3. RUT chileno (formato y dígito verificador)
    4. Validación de formularios en el navegador
    5. Filtros que se aplican solos
@@ -26,19 +26,22 @@ function mostrarMensajes() {
   }
 }
 
-/* 2. Confirmación antes de eliminar (formularios con data-confirmar) */
+/* 2. Confirmación antes de acciones importantes (formularios con data-confirmar) */
+// En el HTML: data-confirmar="texto", data-titulo="título", data-boton="texto del botón"
+// y data-peligro si la acción es destructiva (botón rojo).
 function activarConfirmaciones() {
   document.querySelectorAll("form[data-confirmar]").forEach((formulario) => {
     formulario.addEventListener("submit", async (evento) => {
       evento.preventDefault();
+      const datos = formulario.dataset;
       const respuesta = await Swal.fire({
-        icon: "warning",
-        title: "¿Eliminar trabajador?",
-        text: formulario.dataset.confirmar,
+        icon: "peligro" in datos ? "warning" : "question",
+        title: datos.titulo || "¿Estás seguro?",
+        text: datos.confirmar,
         showCancelButton: true,
-        confirmButtonText: "Sí, eliminar",
+        confirmButtonText: datos.boton || "Sí, continuar",
         cancelButtonText: "Cancelar",
-        confirmButtonColor: "#dc2626",
+        confirmButtonColor: "peligro" in datos ? "#dc2626" : COLOR_PRINCIPAL,
         reverseButtons: true,
       });
       if (respuesta.isConfirmed) {
