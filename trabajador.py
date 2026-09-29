@@ -26,6 +26,8 @@ class Trabajador:
     # Datos que un asistente puede corregir si se ingresaron mal.
     # Los demás (RUT, sueldo, cargo, departamento, estado, rol, fecha) afectan a la empresa.
     DATOS_BASICOS = ("nombre", "apellido", "correo", "telefono")
+    # Tope del sueldo: evita errores de tipeo (un cero de más) y números que no caben en la base de datos
+    SUELDO_MAXIMO = 50_000_000
 
     def __init__(self, rut="", nombre="", apellido="", correo="", telefono="",
                  departamento="", cargo="", fecha_ingreso=None, sueldo=None,
@@ -161,6 +163,8 @@ class Trabajador:
 
         if self.sueldo is None or self.sueldo <= 0:
             self.errores["sueldo"] = "Ingresa un sueldo válido."
+        elif self.sueldo > self.SUELDO_MAXIMO:
+            self.errores["sueldo"] = "El sueldo no puede superar $50.000.000."
 
         return not self.errores
 
@@ -184,7 +188,8 @@ class Trabajador:
     def rut_valido(cls, rut):
         limpio = cls.limpiar_rut(rut)
         numero, dv = limpio[:-1], limpio[-1:]
-        return len(limpio) >= 8 and numero.isdigit() and cls.calcular_dv(numero) == dv
+           # Un RUT tiene 7 u 8 dígitos más el dígito verificador (8 o 9 caracteres en total)
+        return 8 <= len(limpio) <= 9 and numero.isdigit() and cls.calcular_dv(numero) == dv
 
     @classmethod
     def rut_normalizado(cls, rut):
