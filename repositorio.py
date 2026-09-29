@@ -13,6 +13,10 @@ load_dotenv()  # lee las variables del archivo .env
 URL = os.getenv("SUPABASE_URL")
 CLAVE = os.getenv("SUPABASE_KEY")
 
+# Si falta alguna clave, se avisa con un mensaje claro en vez de un error difícil de entender
+if not URL or not CLAVE:
+    raise RuntimeError("Faltan SUPABASE_URL o SUPABASE_KEY en el archivo .env (copia .env.example y complétalo).")
+
 supabase = create_client(URL, CLAVE)
 
 

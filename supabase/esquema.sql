@@ -44,6 +44,10 @@ create table if not exists public.solicitudes (
   check (fecha_fin >= fecha_inicio)
 );
 
+-- Índice para la relación solicitudes -> trabajadores: acelera "Mi panel"
+-- (solicitudes de un trabajador). Supabase lo recomienda para toda clave foránea.
+create index if not exists solicitudes_trabajador_id_idx on public.solicitudes (trabajador_id);
+
 -- 3. Permisos: la aplicación Flask usa las tablas con la clave pública de Supabase
 alter table public.trabajadores disable row level security;
 alter table public.solicitudes disable row level security;
