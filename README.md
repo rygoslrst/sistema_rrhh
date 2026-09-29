@@ -118,4 +118,4 @@ Abrir <http://127.0.0.1:5000> e ingresar con una de las cuentas creadas en Supab
 | *Tomás Lupallante* | Dashboard, solicitudes y JavaScript |
 | *Eric Araya* | Diseño, pruebas e informe |
 
-Docente: *Nombre del docente* · 4º Medio H · Septiembre 2026
+Docente: *Herman Heyer* · 4º Medio H · Septiembre 2026
