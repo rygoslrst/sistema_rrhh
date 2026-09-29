@@ -17,6 +17,8 @@ load_dotenv()  # lee las variables del archivo .env
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")  # Flask la necesita para guardar la sesión
+if not app.secret_key:
+    raise RuntimeError("Falta SECRET_KEY en el archivo .env (revisa .env.example).")
 repositorio = RepositorioTrabajadores()
 solicitudes = RepositorioSolicitudes()
 
@@ -356,4 +358,5 @@ def nueva_solicitud():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+        # El modo debug solo se activa si el .env tiene FLASK_DEBUG=1 (nunca al publicar el sistema)
+    app.run(debug=os.getenv("FLASK_DEBUG") == "1")
