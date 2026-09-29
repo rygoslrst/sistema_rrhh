@@ -340,7 +340,15 @@ input:disabled, select:disabled { background: var(--fondo); color: var(--texto-s
 .marca-login strong { color: var(--principal); }
 .nota { font-size: .8rem; text-align: center; color: var(--texto-suave); }
 
-.swal2-popup { font-family: inherit !important; }
+.swal2-popup { font-family: inherit !important; }/* Foco visible: quien navega con Tab ve dónde está */
+.boton:focus-visible,
+.boton-icono:focus-visible,
+.menu a:focus-visible,
+.pestanas a:focus-visible,
+.enlace:focus-visible {
+  outline: 3px solid #2dd4bf;
+  outline-offset: 2px;
+}
 
 /* 9. Celular y pantallas angostas */
 @media (max-width: 1100px) {
@@ -370,4 +378,10 @@ input:disabled, select:disabled { background: var(--fondo); color: var(--texto-s
   .ficha-acciones > * { flex: 1; }
   .ficha-acciones .boton { width: 100%; }
   .datos { grid-template-columns: 110px 1fr; }
+}
+/* 10. Impresión: al imprimir una ficha se ocultan el menú y los botones */
+@media print {
+  .barra, .botones, .ficha-acciones, .acciones, .volver { display: none !important; }
+  body { background: #fff; }
+  .tarjeta { box-shadow: none; }
 }
