@@ -16,12 +16,19 @@
 
 <form method="get" class="tarjeta filtros">
   <input type="search" name="texto" value="{{ filtros.texto }}"
-         placeholder="Buscar por nombre, apellido o RUT…" aria-label="Buscar">
+                  placeholder="Buscar por nombre, apellido, RUT o correo…" aria-label="Buscar">
   <select name="departamento" aria-label="Departamento" data-enviar-al-cambiar>
     <option value="">Todos los departamentos</option>
     {% for d in Trabajador.DEPARTAMENTOS %}
       <option {{ 'selected' if filtros.departamento == d }}>{{ d }}</option>
     {% endfor %}
+  </select>
+    <select name="cargo" aria-label="Cargo" data-enviar-al-cambiar>
+    <option value="">Todos los cargos</option>
+    {% for c in Trabajador.CARGOS %}
+      <option {{ 'selected' if filtros.cargo == c }}>{{ c }}</option>
+    {% endfor %}
+  </select>
   </select>
   <select name="estado" aria-label="Estado" data-enviar-al-cambiar>
     <option value="">Todos los estados</option>
@@ -30,7 +37,7 @@
     {% endfor %}
   </select>
   <button type="submit" class="boton boton-secundario"><i class="bi bi-search"></i> Buscar</button>
-  {% if filtros.texto or filtros.departamento or filtros.estado %}
+  {% if filtros.texto or filtros.departamento or filtros.cargo or filtros.estado %}
     <a href="{{ url_for('lista_trabajadores') }}" class="boton boton-borde">Limpiar</a>
   {% endif %}
 </form>

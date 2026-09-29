@@ -175,8 +175,9 @@ def lista_trabajadores():
     filtros = {
         "texto": request.args.get("texto", "").strip(),
         "departamento": request.args.get("departamento", ""),
+        "cargo": request.args.get("cargo", ""),
         "estado": request.args.get("estado", ""),
-    }
+    }   
     try:
         trabajadores = repositorio.buscar(**filtros)
     except ErrorSupabase as error:

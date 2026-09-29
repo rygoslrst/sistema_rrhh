@@ -15,7 +15,7 @@ Aplicación web para que el área de Recursos Humanos registre y controle a los 
 - **Solicitudes:** el empleado pide vacaciones, un permiso o una licencia y ve si está pendiente, aprobada o rechazada; el administrador las aprueba o rechaza.
 - **Trabajadores:** registrar, listar, editar y eliminar (con confirmación).
 - **Ficha de cada trabajador** con sus datos personales y laborales ordenados (se abre haciendo clic en su nombre).
-- **Búsqueda** por nombre, apellido o RUT, y **filtros** por departamento y estado.
+- **Búsqueda** por nombre, apellido, RUT o correo, y **filtros** por departamento, cargo y estado.
 - **Validaciones** en el navegador y en el servidor: RUT con dígito verificador, correo, fecha de ingreso, sueldo y datos repetidos.
 - Mensajes con **SweetAlert2** y diseño adaptado a celulares.
 
@@ -111,11 +111,11 @@ Abrir <http://127.0.0.1:5000> e ingresar con una de las cuentas creadas en Supab
 
 | Integrante | Responsable de |
 |---|---|
-| *Rafael Rodriguez* | Supabase y repositorio |
-| *Maximiliano Pacheco* | Login, roles y protección de páginas |
-| *Benjamín Vergara* | Clases Trabajador y Solicitud |
-| *Pablo Benavides* | CRUD, búsqueda, filtros y ficha |
-| *Tomás Lupallante* | Dashboard, solicitudes y JavaScript |
-| *Eric Araya* | Diseño, pruebas e informe |
+| *Nombre 1* | Supabase y repositorio |
+| *Nombre 2* | Login, roles y protección de páginas |
+| *Nombre 3* | Clases Trabajador y Solicitud |
+| *Nombre 4* | CRUD, búsqueda, filtros y ficha |
+| *Nombre 5* | Dashboard, solicitudes y JavaScript |
+| *Nombre 6* | Diseño, pruebas e informe |
 
-Docente: *Herman Heyer* · 4º Medio H · Septiembre 2026
+Docente: *Nombre del docente* · 4º Medio H · Septiembre 2026
