@@ -379,3 +379,9 @@ input:disabled, select:disabled { background: var(--fondo); color: var(--texto-s
   .ficha-acciones .boton { width: 100%; }
   .datos { grid-template-columns: 110px 1fr; }
 }
+/* 10. Impresión: al imprimir una ficha se ocultan el menú y los botones */
+@media print {
+  .barra, .botones, .ficha-acciones, .acciones, .volver { display: none !important; }
+  body { background: #fff; }
+  .tarjeta { box-shadow: none; }
+}
