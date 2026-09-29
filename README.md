@@ -111,11 +111,11 @@ Abrir <http://127.0.0.1:5000> e ingresar con una de las cuentas creadas en Supab
 
 | Integrante | Responsable de |
 |---|---|
-| *Nombre 1* | Supabase y repositorio |
-| *Nombre 2* | Login, roles y protección de páginas |
-| *Nombre 3* | Clases Trabajador y Solicitud |
-| *Nombre 4* | CRUD, búsqueda, filtros y ficha |
-| *Nombre 5* | Dashboard, solicitudes y JavaScript |
-| *Nombre 6* | Diseño, pruebas e informe |
+| *Rafael Rodriguez* | Supabase y repositorio |
+| *Maximiliano Pacheco* | Login, roles y protección de páginas |
+| *Benjamín Vergara* | Clases Trabajador y Solicitud |
+| *Pablo Benavides* | CRUD, búsqueda, filtros y ficha |
+| *Tomás Lupallante* | Dashboard, solicitudes y JavaScript |
+| *Eric Araya* | Diseño, pruebas e informe |
 
 Docente: *Nombre del docente* · 4º Medio H · Septiembre 2026
