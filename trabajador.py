@@ -184,6 +184,7 @@ class Trabajador:
     def rut_valido(cls, rut):
         limpio = cls.limpiar_rut(rut)
         numero, dv = limpio[:-1], limpio[-1:]
+           # Un RUT tiene 7 u 8 dígitos más el dígito verificador (8 o 9 caracteres en total
         return len(limpio) >= 8 and numero.isdigit() and cls.calcular_dv(numero) == dv
 
     @classmethod
