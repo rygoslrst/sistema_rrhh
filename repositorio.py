@@ -68,19 +68,22 @@ class RepositorioTrabajadores(Repositorio):
         """Quita caracteres que Supabase usa en sus filtros (comas, paréntesis, etc.)."""
         return re.sub(r"[,()*%\\\"']", "", texto or "").strip()
 
-    def buscar(self, texto="", departamento="", estado=""):
+    def buscar(self, texto="", departamento="", cargo="", estado=""):
         consulta = self._tabla().select("*")
 
         texto = self._limpiar_busqueda(texto)
         if texto:
             sin_puntos = texto.replace(".", "")  # el RUT se guarda sin puntos
             consulta = consulta.or_(
-                f"nombre.ilike.*{texto}*,apellido.ilike.*{texto}*,rut.ilike.*{sin_puntos}*"
+                                f"nombre.ilike.*{texto}*,apellido.ilike.*{texto}*,"
+                f"correo.ilike.*{texto}*,rut.ilike.*{sin_puntos}*"
             )
         if departamento:
             consulta = consulta.eq("departamento", departamento)
         if estado:
             consulta = consulta.eq("estado", estado)
+        if cargo:
+            consulta = consulta.eq("cargo", cargo)
 
         return self._a_trabajadores(self._ejecutar(consulta.order("apellido")))
 
